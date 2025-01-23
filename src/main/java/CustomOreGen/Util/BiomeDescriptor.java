@@ -12,106 +12,93 @@ import java.util.regex.Pattern;
 
 import net.minecraft.world.biome.BiomeGenBase;
 import net.minecraftforge.common.BiomeDictionary;
+
 import CustomOreGen.Server.DistributionSettingMap.Copyable;
 
-public class BiomeDescriptor implements Copyable<BiomeDescriptor>
-{
+public class BiomeDescriptor implements Copyable<BiomeDescriptor> {
+
     protected LinkedList<Descriptor> _descriptors = new LinkedList<Descriptor>();
-    protected Map<Integer,Float> _matches = new Hashtable<Integer, Float>();
+    protected Map<Integer, Float> _matches = new Hashtable<Integer, Float>();
     protected boolean _compiled = false;
-    
+
     private String name;
 
-    public BiomeDescriptor()
-    {
+    public BiomeDescriptor() {
         this.clear();
     }
 
-    public BiomeDescriptor(String descriptor)
-    {
+    public BiomeDescriptor(String descriptor) {
         this.set(descriptor);
     }
-    
-    public void copyFrom(BiomeDescriptor source)
-    {
+
+    public void copyFrom(BiomeDescriptor source) {
         this._descriptors = new LinkedList<Descriptor>(source._descriptors);
-        this._matches = new Hashtable<Integer,Float>(source._matches);
+        this._matches = new Hashtable<Integer, Float>(source._matches);
         this._compiled = source._compiled;
     }
-    
+
     public String getName() {
-    	return name;
+        return name;
     }
-    
+
     public void setName(String name) {
-    	this.name = name;
+        this.name = name;
     }
-    
-    public BiomeDescriptor set(String descriptor)
-    {
+
+    public BiomeDescriptor set(String descriptor) {
         this.clear();
 
-        if (descriptor != null)
-        {
+        if (descriptor != null) {
             this.add(descriptor);
         }
 
         return this;
     }
 
-    public BiomeDescriptor add(String descriptor)
-    {
+    public BiomeDescriptor add(String descriptor) {
         return this.add(descriptor, 1.0F);
     }
 
-    public BiomeDescriptor add(String descriptor, float weight)
-    {
+    public BiomeDescriptor add(String descriptor, float weight) {
         return this.add(descriptor, 1.0F, new BiomeRestriction(), false);
     }
-    
-    public BiomeDescriptor add(String descriptor, float weight, BiomeRestriction climate, boolean describesType)
-    {
-        if (descriptor != null && weight != 0.0F)
-        {
+
+    public BiomeDescriptor add(String descriptor, float weight, BiomeRestriction climate, boolean describesType) {
+        if (descriptor != null && weight != 0.0F) {
             this._compiled = false;
             this._descriptors.add(new Descriptor(descriptor, weight, climate, describesType));
         }
 
         return this;
     }
-    
-    public BiomeDescriptor addAll(BiomeDescriptor descriptor, float weight) {
-    	this._compiled = false;
-    	if (weight == 1.0F) {
-    		this._descriptors.addAll(descriptor._descriptors);
-    	} else {
-    		for (Descriptor desc : descriptor._descriptors) {
-    			add(desc.description, desc.weight * weight, desc.climate, desc.describesType);
-    		}
-    	}
-    	return this;
-	}
 
-    public BiomeDescriptor clear()
-    {
+    public BiomeDescriptor addAll(BiomeDescriptor descriptor, float weight) {
+        this._compiled = false;
+        if (weight == 1.0F) {
+            this._descriptors.addAll(descriptor._descriptors);
+        } else {
+            for (Descriptor desc : descriptor._descriptors) {
+                add(desc.description, desc.weight * weight, desc.climate, desc.describesType);
+            }
+        }
+        return this;
+    }
+
+    public BiomeDescriptor clear() {
         this._compiled = false;
         this._descriptors.clear();
         return this;
     }
 
-    public List<Descriptor> getDescriptors()
-    {
+    public List<Descriptor> getDescriptors() {
         return Collections.unmodifiableList(this._descriptors);
     }
 
-    protected void add(BiomeGenBase biome, float weight)
-    {
-        if (biome != null && weight != 0.0F)
-        {
-            Float currentValue = (Float)this._matches.get(biome.biomeID);
+    protected void add(BiomeGenBase biome, float weight) {
+        if (biome != null && weight != 0.0F) {
+            Float currentValue = (Float) this._matches.get(biome.biomeID);
 
-            if (currentValue != null)
-            {
+            if (currentValue != null) {
                 weight += currentValue.floatValue();
             }
 
@@ -119,106 +106,86 @@ public class BiomeDescriptor implements Copyable<BiomeDescriptor>
         }
     }
 
-    protected float matchingWeight(BiomeGenBase biome)
-    {
+    protected float matchingWeight(BiomeGenBase biome) {
         float totalWeight = 0.0F;
-        
+
         String name = biome.biomeName;
-        
+
         for (Descriptor desc : this._descriptors) {
             Matcher matcher;
-            if (!desc.climate.isCompatible(biome))
-            	continue;
-            
-            if (desc.describesType) {
-            	BiomeDictionary.Type type = BiomeDictionary.Type.valueOf(desc.description.toUpperCase());
-            	// instead of this, because we do not want to add a new type if it does not exist:
-            	//BiomeDictionary.Type type = BiomeDictionary.Type.getType(desc.description);
-            	if (BiomeDictionary.isBiomeOfType(biome, type))
-            	{
-            		totalWeight += desc.weight;
-            	}
-            } else {
-            	if (name != null)
-            	{
-            		matcher = desc.getPattern().matcher(name);
+            if (!desc.climate.isCompatible(biome)) continue;
 
-            		if (matcher.matches())
-            		{
-            			totalWeight += desc.weight;
-            		}
-            	}
+            if (desc.describesType) {
+                BiomeDictionary.Type type = BiomeDictionary.Type.valueOf(desc.description.toUpperCase());
+                // instead of this, because we do not want to add a new type if it does not exist:
+                // BiomeDictionary.Type type = BiomeDictionary.Type.getType(desc.description);
+                if (BiomeDictionary.isBiomeOfType(biome, type)) {
+                    totalWeight += desc.weight;
+                }
+            } else {
+                if (name != null) {
+                    matcher = desc.getPattern()
+                        .matcher(name);
+
+                    if (matcher.matches()) {
+                        totalWeight += desc.weight;
+                    }
+                }
             }
         }
         return totalWeight;
     }
 
-    protected void compileMatches()
-    {
-        if (!this._compiled)
-        {
+    protected void compileMatches() {
+        if (!this._compiled) {
             this._compiled = true;
             this._matches.clear();
-            
+
             for (BiomeGenBase biome : BiomeGenBase.getBiomeGenArray()) {
-                if (biome != null)
-                {
-                	this.add(biome, this.matchingWeight(biome));
+                if (biome != null) {
+                    this.add(biome, this.matchingWeight(biome));
                 }
             }
         }
     }
-    
-    public float getWeight(BiomeGenBase biome)
-    {
+
+    public float getWeight(BiomeGenBase biome) {
         this.compileMatches();
-        Float value = (Float)this._matches.get(biome.biomeID);
+        Float value = (Float) this._matches.get(biome.biomeID);
         return value == null ? 0.0F : value.floatValue();
     }
 
-    public boolean matchesBiome(BiomeGenBase biome, Random rand)
-    {
+    public boolean matchesBiome(BiomeGenBase biome, Random rand) {
         float weight = this.getWeight(biome);
 
-        if (weight <= 0.0F)
-        {
+        if (weight <= 0.0F) {
             return false;
-        }
-        else if (weight < 1.0F)
-        {
-            if (rand == null)
-            {
+        } else if (weight < 1.0F) {
+            if (rand == null) {
                 rand = new Random();
             }
 
             return rand.nextFloat() < weight;
-        }
-        else
-        {
+        } else {
             return true;
         }
     }
 
-    public BiomeGenBase getMatchingBiome(Random rand)
-    {
+    public BiomeGenBase getMatchingBiome(Random rand) {
         this.compileMatches();
         float value = -1.0F;
-        
-        for (Entry<Integer,Float> entry : this._matches.entrySet()) {
-        	float weight = entry.getValue();
+
+        for (Entry<Integer, Float> entry : this._matches.entrySet()) {
+            float weight = entry.getValue();
             BiomeGenBase biome = BiomeGenBase.getBiome(entry.getKey());
 
-            if (weight > 0.0F)
-            {
-                if (weight >= 1.0F)
-                {
+            if (weight > 0.0F) {
+                if (weight >= 1.0F) {
                     return biome;
                 }
 
-                if (value < 0.0F)
-                {
-                    if (rand == null)
-                    {
+                if (value < 0.0F) {
+                    if (rand == null) {
                         rand = new Random();
                     }
 
@@ -227,8 +194,7 @@ public class BiomeDescriptor implements Copyable<BiomeDescriptor>
 
                 value -= weight;
 
-                if (value < 0.0F)
-                {
+                if (value < 0.0F) {
                     return biome;
                 }
             }
@@ -237,133 +203,122 @@ public class BiomeDescriptor implements Copyable<BiomeDescriptor>
         return null;
     }
 
-    public float getTotalMatchWeight()
-    {
+    public float getTotalMatchWeight() {
         this.compileMatches();
         float weight = 0.0F;
-        
+
         for (Float val : this._matches.values()) {
-        	if (val.floatValue() > 0.0F)
-            {
+            if (val.floatValue() > 0.0F) {
                 weight += val.floatValue();
             }
         }
         return weight;
     }
 
-    public String toString()
-    {
-        switch (this._descriptors.size())
-        {
+    public String toString() {
+        switch (this._descriptors.size()) {
             case 0:
                 return "[no biomes]";
 
             case 1:
-                return ((Descriptor)this._descriptors.get(0)).toString();
+                return ((Descriptor) this._descriptors.get(0)).toString();
 
             default:
                 return this._descriptors.toString();
         }
     }
 
-    public String[] toDetailedString()
-    {
+    public String[] toDetailedString() {
         this.compileMatches();
         String[] breakdown = new String[this._matches.size() + 1];
         breakdown[0] = this._matches.size() + " biome matches";
 
-        if (this._matches.size() > 0)
-        {
+        if (this._matches.size() > 0) {
             breakdown[0] = breakdown[0] + ':';
         }
 
         int i = 1;
 
-        for (Entry<Integer,Float> entry : this._matches.entrySet()) {
-        	float weight = entry.getValue();
+        for (Entry<Integer, Float> entry : this._matches.entrySet()) {
+            float weight = entry.getValue();
             BiomeGenBase biome = BiomeGenBase.getBiome(entry.getKey());
 
-            if (biome == null)
-            {
+            if (biome == null) {
                 breakdown[i] = "[??]";
-            }
-            else
-            {
+            } else {
                 breakdown[i] = biome.biomeName;
             }
 
             breakdown[i] = breakdown[i] + " - " + weight;
             ++i;
         }
-        
+
         return breakdown;
     }
 
-    private static class Descriptor
-    {
+    private static class Descriptor {
+
         public final String description;
         public final float weight;
         public final BiomeRestriction climate;
         public final boolean describesType;
         private Pattern pattern = null;
 
-        public Descriptor(String description, float weight, BiomeRestriction climate, boolean describesType)
-        {
+        public Descriptor(String description, float weight, BiomeRestriction climate, boolean describesType) {
             this.description = description;
             this.weight = weight;
-			this.climate = climate;
+            this.climate = climate;
             this.describesType = describesType;
         }
 
-        public Pattern getPattern()
-        {
-            if (this.pattern == null)
-            {
+        public Pattern getPattern() {
+            if (this.pattern == null) {
                 this.pattern = Pattern.compile(this.description, Pattern.CASE_INSENSITIVE);
             }
 
             return this.pattern;
         }
 
-        public String toString()
-        {
+        public String toString() {
             return this.description + " - " + Float.toString(this.weight);
         }
     }
-    
+
     public static class BiomeRestriction {
-    	public final float minTemperature, maxTemperature;
+
+        public final float minTemperature, maxTemperature;
         public final float minRainfall, maxRainfall;
         public final int minTreesPerChunk, maxTreesPerChunk;
         public final float minHeightVariation, maxHeightVariation;
-        
+
         public BiomeRestriction(float minTemperature, float maxTemperature, float minRainfall, float maxRainfall,
-        		int minTreesPerChunk, int maxTreesPerChunk, float minHeightVariation, float maxHeightVariation) {
-        	this.minTemperature = minTemperature;
-			this.maxTemperature = maxTemperature;
-			this.minRainfall = minRainfall;
-			this.maxRainfall = maxRainfall;
-			this.minTreesPerChunk = minTreesPerChunk;
-			this.maxTreesPerChunk = maxTreesPerChunk;
-			this.minHeightVariation = minHeightVariation;
-			this.maxHeightVariation = maxHeightVariation;
+            int minTreesPerChunk, int maxTreesPerChunk, float minHeightVariation, float maxHeightVariation) {
+            this.minTemperature = minTemperature;
+            this.maxTemperature = maxTemperature;
+            this.minRainfall = minRainfall;
+            this.maxRainfall = maxRainfall;
+            this.minTreesPerChunk = minTreesPerChunk;
+            this.maxTreesPerChunk = maxTreesPerChunk;
+            this.minHeightVariation = minHeightVariation;
+            this.maxHeightVariation = maxHeightVariation;
         }
-        
+
         public BiomeRestriction() {
-        	this.minTemperature = this.minRainfall = this.minHeightVariation = Float.NEGATIVE_INFINITY;
-			this.maxTemperature = this.maxRainfall = this.maxHeightVariation = Float.POSITIVE_INFINITY;
-			this.minTreesPerChunk = Integer.MIN_VALUE;
-			this.maxTreesPerChunk = Integer.MAX_VALUE;
+            this.minTemperature = this.minRainfall = this.minHeightVariation = Float.NEGATIVE_INFINITY;
+            this.maxTemperature = this.maxRainfall = this.maxHeightVariation = Float.POSITIVE_INFINITY;
+            this.minTreesPerChunk = Integer.MIN_VALUE;
+            this.maxTreesPerChunk = Integer.MAX_VALUE;
         }
-        
+
         public boolean isCompatible(BiomeGenBase biome) {
-			return biome.temperature >= minTemperature && biome.temperature <= maxTemperature &&
-				   biome.rainfall >= minRainfall && biome.rainfall <= maxRainfall &&
-				   biome.theBiomeDecorator.treesPerChunk >= minTreesPerChunk &&
-				   biome.theBiomeDecorator.treesPerChunk <= maxTreesPerChunk &&
-				   biome.heightVariation >= minHeightVariation &&
-				   biome.heightVariation <= maxHeightVariation;
-		}
+            return biome.temperature >= minTemperature && biome.temperature <= maxTemperature
+                && biome.rainfall >= minRainfall
+                && biome.rainfall <= maxRainfall
+                && biome.theBiomeDecorator.treesPerChunk >= minTreesPerChunk
+                && biome.theBiomeDecorator.treesPerChunk <= maxTreesPerChunk
+                && biome.heightVariation >= minHeightVariation
+                && biome.heightVariation <= maxHeightVariation;
+        }
     }
 
 }

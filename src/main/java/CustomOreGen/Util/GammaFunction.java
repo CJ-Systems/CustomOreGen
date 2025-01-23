@@ -2,27 +2,22 @@ package CustomOreGen.Util;
 
 /*
  * GammaFunction.java
- *
  * Copyright (C) 2002-2006 Alexei Drummond and Andrew Rambaut
- *
  * This file is part of BEAST.
  * See the NOTICE file distributed with this work for additional
  * information regarding copyright ownership and licensing.
- *
  * BEAST is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
  * published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- *
- *  BEAST is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU Lesser General Public License for more details.
- *
+ * BEAST is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details.
  * You should have received a copy of the GNU Lesser General Public
  * License along with BEAST; if not, write to the
  * Free Software Foundation, Inc., 51 Franklin St, Fifth Floor,
- * Boston, MA  02110-1301  USA
+ * Boston, MA 02110-1301 USA
  */
 
 /**
@@ -61,10 +56,10 @@ public class GammaFunction {
         }
         z = 1 / (x * x);
 
-        return
-                f + (x - 0.5) * Math.log(x) - x + 0.918938533204673 +
-                        (((-0.000595238095238 * z + 0.000793650793651) *
-                                z - 0.002777777777778) * z + 0.083333333333333) / x;
+        return f + (x - 0.5) * Math.log(x)
+            - x
+            + 0.918938533204673
+            + (((-0.000595238095238 * z + 0.000793650793651) * z - 0.002777777777778) * z + 0.083333333333333) / x;
     }
 
     /**
@@ -107,7 +102,6 @@ public class GammaFunction {
         return incompleteGamma(x, a, lnGammaA);
     }
 
-
     /**
      * Returns the incomplete gamma ratio I(x,alpha) where x is the upper
      * limit of the integration and alpha is the shape parameter.
@@ -118,10 +112,10 @@ public class GammaFunction {
      * @return the incomplete gamma ratio
      */
     private static double incompleteGamma(double x, double alpha, double ln_gamma_alpha) {
-        // (1) series expansion     if (alpha>x || x<=1)
-        // (2) continued fraction   otherwise
+        // (1) series expansion if (alpha>x || x<=1)
+        // (2) continued fraction otherwise
         // RATNEST FORTRAN by
-        // Bhattacharjee GP (1970) The incomplete gamma integral.  Applied Statistics,
+        // Bhattacharjee GP (1970) The incomplete gamma integral. Applied Statistics,
         // 19: 285-287 (AS32)
 
         double accurate = 1e-8, overflow = 1e30;
@@ -188,12 +182,10 @@ public class GammaFunction {
                 rn++;
                 term *= x / rn;
                 gin += term;
-            }
-            while (term > accurate);
+            } while (term > accurate);
             gin *= factor / alpha;
         }
         return gin;
     }
 
 }
-

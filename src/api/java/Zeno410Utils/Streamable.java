@@ -4,9 +4,10 @@
  */
 
 package Zeno410Utils;
+
 import java.io.DataInput;
-import java.io.IOException;
 import java.io.DataOutput;
+import java.io.IOException;
 
 /**
  *
@@ -14,6 +15,7 @@ import java.io.DataOutput;
  */
 public interface Streamable {
 
-        abstract public void readFrom(DataInput input) throws IOException ;
-        abstract public void writeTo(DataOutput output) throws IOException;
+    abstract public void readFrom(DataInput input) throws IOException;
+
+    abstract public void writeTo(DataOutput output) throws IOException;
 }

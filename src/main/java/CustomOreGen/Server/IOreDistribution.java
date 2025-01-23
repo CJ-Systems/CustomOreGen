@@ -1,12 +1,14 @@
 package CustomOreGen.Server;
 
-import CustomOreGen.Util.GeometryStream;
 import java.util.Map;
+
 import net.minecraft.world.World;
 
-public interface IOreDistribution
-{
-    Map<String,String> getDistributionSettingDescriptions();
+import CustomOreGen.Util.GeometryStream;
+
+public interface IOreDistribution {
+
+    Map<String, String> getDistributionSettingDescriptions();
 
     Object getDistributionSetting(String name);
 
@@ -25,16 +27,15 @@ public interface IOreDistribution
     boolean validate() throws IllegalStateException;
 
     void inheritFrom(IOreDistribution var1) throws IllegalArgumentException;
-    
+
     double getOresPerChunk();
-    
-    public static interface IDistributionFactory
-    {
+
+    public static interface IDistributionFactory {
+
         IOreDistribution createDistribution(int id);
     }
 
-    public enum StandardSettings
-    {
+    public enum StandardSettings {
         Name,
         DisplayName,
         Seed,

@@ -1,5 +1,9 @@
 package CustomOreGen.Util;
 
+import CustomOreGen.Config.ConfigParser;
+import CustomOreGen.CustomPacketPayload;
+import CustomOreGen.CustomPacketPayload.PayloadType;
+import CustomOreGen.Server.ServerState;
 import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -10,7 +14,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
-
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
@@ -22,10 +25,6 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
-import CustomOreGen.CustomPacketPayload;
-import CustomOreGen.CustomPacketPayload.PayloadType;
-import CustomOreGen.Config.ConfigParser;
-import CustomOreGen.Server.ServerState;
 
 public class ConsoleCommand extends CommandBase
 {
@@ -51,7 +50,7 @@ public class ConsoleCommand extends CommandBase
     public @interface CommandDelegate
     {
     	String[] names() default {};
-    	
+
     	boolean isCheat() default true;
 
     	boolean isDebugging() default true;
@@ -154,7 +153,7 @@ public class ConsoleCommand extends CommandBase
 
             if (pantns != null && cmdDef < pantns.length && pantns[cmdDef] != null)
             {
-                Annotation[] senderWorld = pantns[cmdDef];   
+                Annotation[] senderWorld = pantns[cmdDef];
                 for (Annotation annot : senderWorld) {
                 	if (annot instanceof ArgName)
                     {
@@ -173,7 +172,7 @@ public class ConsoleCommand extends CommandBase
                 {
                     if (getSenderWorld(sender) != null)
                     	continue;
-                    
+
                     clazz = Integer.class;
                 }
                 else if (clazz.isArray() && cmdDef == ptypes.length - 1 && this._method.isVarArgs())

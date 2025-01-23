@@ -1,18 +1,16 @@
 package CustomOreGen.Config;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
-
-import org.w3c.dom.Node;
-import org.w3c.dom.UserDataHandler;
-
 import CustomOreGen.Server.IOreDistribution;
 import CustomOreGen.Server.IOreDistribution.IDistributionFactory;
 import CustomOreGen.Server.IOreDistribution.StandardSettings;
 import CustomOreGen.Util.BiomeDescriptor;
 import CustomOreGen.Util.BlockDescriptor;
 import CustomOreGen.Util.PDist;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
+import org.w3c.dom.Node;
+import org.w3c.dom.UserDataHandler;
 
 public class ValidatorDistribution extends ValidatorNode
 {
@@ -90,7 +88,7 @@ public class ValidatorDistribution extends ValidatorNode
 
             settings1.remove(nameKey);
         }
-        
+
         String displayNameKey = IOreDistribution.StandardSettings.DisplayName.name();
 
         if (settings1.contains(displayNameKey))
@@ -100,7 +98,7 @@ public class ValidatorDistribution extends ValidatorNode
             if (newName == null) {
             	newName = (String)this.distribution.getDistributionSetting(nameKey);
             }
-            
+
             try
             {
                 if (newName != null)
@@ -158,7 +156,7 @@ public class ValidatorDistribution extends ValidatorNode
         }
 
         String oreBlockKey = IOreDistribution.StandardSettings.OreBlock.name();
-        
+
         if (settings.contains(oreBlockKey))
         {
             BlockDescriptor oreBlockDesc = new BlockDescriptor();
@@ -170,13 +168,13 @@ public class ValidatorDistribution extends ValidatorNode
             }
 
             for (ValidatorBlockDescriptor oreBlock : validateNamedChildren(2, "OreBlock", new ValidatorBlockDescriptor.Factory())) {
-                oreBlockDesc.add(oreBlock.blocks, oreBlock.weight, oreBlock.nbt);	
+                oreBlockDesc.add(oreBlock.blocks, oreBlock.weight, oreBlock.nbt);
             }
-            
+
             for (ValidatorBlockDescriptor oreBlock : validateNamedChildren(2, "FirstOreDictBlock", new ValidatorBlockDescriptor.Factory())) {
-                oreBlockDesc.add(oreBlock.blocks, oreBlock.weight, true, true, false, oreBlock.nbt);	
+                oreBlockDesc.add(oreBlock.blocks, oreBlock.weight, true, true, false, oreBlock.nbt);
             }
-            
+
             if (!oreBlockDesc.getDescriptors().isEmpty())
             {
                 try
@@ -206,7 +204,7 @@ public class ValidatorDistribution extends ValidatorNode
         if (settings.contains(biomeKey))
         {
             BiomeDescriptor biomeDescriptor = new BiomeDescriptor();
-            
+
             for (ValidatorBiomeDescriptor biome : validateNamedChildren(2, "Biome", new ValidatorBiomeDescriptor.Factory())) {
             	biomeDescriptor.add(biome.biome, biome.weight, biome.restriction, false);
             }
@@ -214,11 +212,11 @@ public class ValidatorDistribution extends ValidatorNode
             for (ValidatorBiomeDescriptor biomeType : validateNamedChildren(2, "BiomeType", new ValidatorBiomeDescriptor.Factory())) {
             	biomeDescriptor.add(biomeType.biome, biomeType.weight, biomeType.restriction, true);
             }
-            
+
             for (ValidatorBiomeSet biomeSet : validateNamedChildren(2, "BiomeSet", new ValidatorBiomeSet.Factory())) {
             	biomeDescriptor.addAll(biomeSet.biomeSet, 1.0F);
             }
-            
+
             if (!biomeDescriptor.getDescriptors().isEmpty())
             {
                 try
@@ -239,7 +237,7 @@ public class ValidatorDistribution extends ValidatorNode
         }
 
         validateNamedChildren(2, "Setting", new ValidatorPDist.Factory(this.distribution));
-        
+
         for (String settingName : settings) {
         	Object setting = this.distribution.getDistributionSetting(settingName);
 
@@ -277,7 +275,7 @@ public class ValidatorDistribution extends ValidatorNode
 
 	private void validatePlacementRestriction(Set<String> settings, StandardSettings setting) throws ParserException {
 		String settingKey = setting.name();
-		
+
 		if (settings.contains(settingKey))
         {
             BlockDescriptor replacesDesc = new BlockDescriptor();
@@ -290,7 +288,7 @@ public class ValidatorDistribution extends ValidatorNode
             for (ValidatorBlockDescriptor replaces : validateNamedChildren(2, settingKey + "Regexp", new ValidatorBlockDescriptor.Factory())) {
             	replacesDesc.add(replaces.blocks, replaces.weight, false, false, true, null);
             }
-            
+
             if (!replacesDesc.getDescriptors().isEmpty())
             {
                 try
@@ -310,7 +308,7 @@ public class ValidatorDistribution extends ValidatorNode
             settings.remove(settingKey);
         }
 	}
-    
+
     public static class Factory implements IValidatorFactory<ValidatorDistribution>
     {
         private final IDistributionFactory _distributionFactory;

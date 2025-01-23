@@ -1,8 +1,7 @@
 package CustomOreGen.Config;
 
-import org.w3c.dom.Node;
-
 import cpw.mods.fml.common.Loader;
+import org.w3c.dom.Node;
 
 public class ValidatorIfModInstalled extends ValidatorCondition
 {
@@ -16,7 +15,7 @@ public class ValidatorIfModInstalled extends ValidatorCondition
         String modName = (String)this.validateRequiredAttribute(String.class, "name", true);
         return Loader.isModLoaded(modName);
     }
-    
+
     public static class Factory implements IValidatorFactory<ValidatorIfModInstalled>
     {
         private final boolean _invert;

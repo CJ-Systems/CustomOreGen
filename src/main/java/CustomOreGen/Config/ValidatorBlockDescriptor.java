@@ -4,7 +4,6 @@ import net.minecraft.nbt.JsonToNBT;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTException;
 import net.minecraft.nbt.NBTTagCompound;
-
 import org.w3c.dom.Node;
 
 public class ValidatorBlockDescriptor extends ValidatorNode
@@ -12,7 +11,7 @@ public class ValidatorBlockDescriptor extends ValidatorNode
     public String blocks = null;
     public float weight = 1.0F;
 	public NBTTagCompound nbt;
-	
+
     protected ValidatorBlockDescriptor(ValidatorNode parent, Node node)
     {
         super(parent, node);
@@ -38,7 +37,7 @@ public class ValidatorBlockDescriptor extends ValidatorNode
         }
         return true;
     }
-    
+
     public static class Factory implements IValidatorFactory<ValidatorBlockDescriptor>
     {
         public ValidatorBlockDescriptor createValidator(ValidatorNode parent, Node node)

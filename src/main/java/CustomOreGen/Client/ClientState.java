@@ -1,20 +1,5 @@
 package CustomOreGen.Client;
 
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.nio.IntBuffer;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Random;
-import java.util.Set;
-
-import net.minecraft.entity.Entity;
-import net.minecraft.world.World;
-
-import org.lwjgl.opengl.GL11;
-
 import CustomOreGen.CustomOreGenBase;
 import CustomOreGen.CustomPacketPayload;
 import CustomOreGen.CustomPacketPayload.PayloadType;
@@ -26,6 +11,18 @@ import CustomOreGen.Util.IGeometryBuilder.PrimitiveType;
 import CustomOreGen.Util.Transform;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.IntBuffer;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Random;
+import java.util.Set;
+import net.minecraft.entity.Entity;
+import net.minecraft.world.World;
+import org.lwjgl.opengl.GL11;
 
 public class ClientState
 {
@@ -261,7 +258,7 @@ public class ClientState
                 GL11.glDeleteLists(list, 1);
             }
     	}
-        
+
         _dgListMap.clear();
         _chunkDGRequests.clear();
 

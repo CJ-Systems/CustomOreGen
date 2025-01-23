@@ -1,20 +1,5 @@
 package CustomOreGen.Server;
 
-import java.io.Serializable;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.regex.Pattern;
-
-import net.minecraft.command.ICommandSender;
-import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.nbt.JsonToNBT;
-import net.minecraft.nbt.NBTBase;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.ChunkCoordinates;
-import net.minecraft.world.WorldServer;
 import CustomOreGen.CustomOreGenBase;
 import CustomOreGen.CustomPacketPayload;
 import CustomOreGen.CustomPacketPayload.PayloadType;
@@ -26,6 +11,20 @@ import CustomOreGen.Util.ConsoleCommand.ArgOptional;
 import CustomOreGen.Util.ConsoleCommand.CommandDelegate;
 import CustomOreGen.Util.PDist;
 import CustomOreGen.Util.PDist.Type;
+import java.io.Serializable;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.regex.Pattern;
+import net.minecraft.command.ICommandSender;
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.nbt.JsonToNBT;
+import net.minecraft.nbt.NBTBase;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.ChunkCoordinates;
+import net.minecraft.world.WorldServer;
 
 public class ConsoleCommands
 {
@@ -129,7 +128,7 @@ public class ConsoleCommands
         {
             msg.append(':');
             Pattern pattern = setting != null && !setting.isEmpty() ? Pattern.compile(setting, 2) : null;
-            
+
             for (IOreDistribution dist : dists) {
             	msg.append("\n " + dist);
 
@@ -137,7 +136,7 @@ public class ConsoleCommands
                 {
                     Map<String,String> descriptions = dist.getDistributionSettingDescriptions();
                     LinkedHashMap<String,Object> values = new LinkedHashMap<String, Object>();
-                    
+
                     for (Entry<String,String> entry : descriptions.entrySet()) {
                     	if (pattern.matcher(entry.getKey()).matches())
                         {
@@ -145,7 +144,7 @@ public class ConsoleCommands
                             values.put(entry.getKey(), value);
                         }
                     }
-                    
+
                     msg.append(" (" + values.size() + "/" + descriptions.size() + " settings)");
 
                     if (values.size() > 0)
@@ -197,7 +196,7 @@ public class ConsoleCommands
             ) String distribution)
     {
         int count = 0;
-        
+
         for (IOreDistribution dist : ServerState.getWorldConfig(world).getOreDistributions(distribution)) {
         	++count;
             dist.clear();
@@ -284,7 +283,7 @@ public class ConsoleCommands
         }
 
         int count = 0;
-        
+
         for (IOreDistribution dist : cfg.getOreDistributions(distribution)) {
         	try
             {
@@ -306,7 +305,7 @@ public class ConsoleCommands
     private static int changeBiomeDescriptor(String settingName, ICommandSender sender, WorldServer world, String distribution, String descriptor, float weight, boolean clear)
     {
         int count = 0;
-        
+
         for (IOreDistribution dist : ServerState.getWorldConfig(world).getOreDistributions(distribution)) {
         	try
             {
@@ -316,7 +315,7 @@ public class ConsoleCommands
                 {
                     throw new IllegalArgumentException("Distribution \'" + dist + "\' does not support descriptor " + settingName + ".");
                 }
-                
+
                 if (!(ex instanceof BiomeDescriptor))
                 {
                     throw new IllegalArgumentException("Setting " + settingName + " on Distribution \'" + dist + "\' is not a biome descriptor.");
@@ -339,15 +338,15 @@ public class ConsoleCommands
                 ConsoleCommand.sendText(sender, "\u00a7c" + var12.getMessage());
             }
         }
-        
+
         resetClientGeometryCache();
         return count;
     }
-    
+
     private static int changeBlockDescriptor(String settingName, ICommandSender sender, WorldServer world, String distribution, String descriptor, float weight, boolean clear, boolean describesOre, boolean matchFirst, boolean isRegexp, String nbt)
     {
         int count = 0;
-        
+
         for (IOreDistribution dist : ServerState.getWorldConfig(world).getOreDistributions(distribution)) {
         	try
             {
@@ -362,7 +361,7 @@ public class ConsoleCommands
                 {
                     throw new IllegalArgumentException("Setting " + settingName + " on Distribution \'" + dist + "\' is not a block descriptor.");
                 }
-                
+
                 if (ex instanceof BlockDescriptor)
                 {
                     BlockDescriptor desc = (BlockDescriptor)ex;
@@ -379,7 +378,7 @@ public class ConsoleCommands
                     desc.add(descriptor, weight, describesOre, isRegexp, matchFirst, nbt == null ? null : (NBTTagCompound)nbtBase);
                     ++count;
                 }
-                
+
                 dist.clear();
                 dist.validate();
             }
@@ -605,7 +604,7 @@ public class ConsoleCommands
             ) Type type)
     {
         int count = 0;
-        
+
         for (IOreDistribution dist : ServerState.getWorldConfig(world).getOreDistributions(distribution))
         {
             try
@@ -702,7 +701,7 @@ public class ConsoleCommands
         if (options != null && options.size() > 0)
         {
             msg.append(':');
-            
+
             for (ConfigOption opt : options) {
             	buildFieldValue(msg, "  ", opt.getName(), detail ? opt.getDescription() : null, opt.getValue());
             }

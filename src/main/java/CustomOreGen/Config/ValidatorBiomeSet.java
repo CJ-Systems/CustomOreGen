@@ -1,14 +1,13 @@
 package CustomOreGen.Config;
 
+import CustomOreGen.Util.BiomeDescriptor;
 import org.w3c.dom.Node;
 
-import CustomOreGen.Util.BiomeDescriptor;
-
 public class ValidatorBiomeSet extends ValidatorNode {
-	
+
 	public BiomeDescriptor biomeSet;
 	public float weight = 1.0F;
-	
+
 	protected ValidatorBiomeSet(ValidatorNode parent, Node node) {
 		super(parent, node);
 	}
@@ -16,18 +15,18 @@ public class ValidatorBiomeSet extends ValidatorNode {
 	protected boolean validateChildren() throws ParserException
 	{
 		super.validateChildren();
-		
+
 		this.biomeSet = new BiomeDescriptor();
 		String name = this.validateNamedAttribute(String.class, "name", null, true);
 		if (name != null) {
 			this.biomeSet.setName(name);
 			this.getParser().target.registerBiomeSet(this.biomeSet);
 		}
-		
+
 		this.weight = this.validateNamedAttribute(Float.class, "Weight", this.weight, true);
-		
+
 		String inherits = this.validateNamedAttribute(String.class, "inherits", null, true);
-		if (inherits != null)	
+		if (inherits != null)
 		{
 			BiomeDescriptor set = this.getParser().target.getBiomeSet(inherits);
 
@@ -45,14 +44,14 @@ public class ValidatorBiomeSet extends ValidatorNode {
 				throw new ParserException("Cannot inherit biomes (" + e.getMessage() + ").", this.getNode(), e);
 			}
 		}
-	        
+
 		validateBiomes();
-		
+
 		this.getNode().setUserData("validated", true, null);
-		
+
 		return true;
 	}
-	    
+
 	public void validateBiomes() throws ParserException {
 		for (ValidatorBiomeDescriptor biome : validateNamedChildren(2, "Biome", new ValidatorBiomeDescriptor.Factory())) {
 			this.biomeSet.add(biome.biome, biome.weight * this.weight, biome.restriction, false);
@@ -64,7 +63,7 @@ public class ValidatorBiomeSet extends ValidatorNode {
         	this.biomeSet.addAll(biomeSet.biomeSet, this.weight);
         }
 	}
-	
+
 	public static class Factory implements IValidatorFactory<ValidatorBiomeSet>
 	{
 		public ValidatorBiomeSet createValidator(ValidatorNode parent, Node node)

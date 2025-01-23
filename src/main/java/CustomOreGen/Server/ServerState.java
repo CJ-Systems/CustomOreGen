@@ -1,14 +1,5 @@
 package CustomOreGen.Server;
 
-import java.awt.Frame;
-import java.io.File;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.Map;
-import java.util.Random;
-
 import CustomOreGen.CustomOreGenBase;
 import CustomOreGen.GeometryData;
 import CustomOreGen.GeometryRequestData;
@@ -21,6 +12,14 @@ import cpw.mods.fml.relauncher.ReflectionHelper;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import exterminatorJeff.undergroundBiomes.api.UBAPIHook;
+import java.awt.Frame;
+import java.io.File;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.Map;
+import java.util.Random;
 import net.minecraft.block.BlockSand;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiCreateWorld;
@@ -134,13 +133,13 @@ public class ServerState
         SimpleProfiler.globalProfiler.startSection("Populate");
         BlockSand.fallInstantly = true;
         world.scheduledUpdatesAreImmediate = true;
-        
+
         for (IOreDistribution dist : distributions) {
         	dist.generate(world, chunkX, chunkZ);
             dist.populate(world, chunkX, chunkZ);
             dist.cull();
         }
-        
+
         world.scheduledUpdatesAreImmediate = false;
         BlockSand.fallInstantly = false;
         if (Loader.isModLoaded("UndergroundBiomes")) {
@@ -211,28 +210,28 @@ public class ServerState
         {
             for (int iZ = chunkZ - range; iZ <= chunkZ + range; ++iZ)
             {
-            	if (chunkHasBeenPopulated(world, iX, iZ)) 
+            	if (chunkHasBeenPopulated(world, iX, iZ))
             	{
             		//CustomOreGenBase.log.info("[" + iX + "," + iZ + "]: populated neighbor");
             		neighborCount++;
             	}
             }
         }
-		return neighborCount == area; 
+		return neighborCount == area;
 	}
 
 	private static boolean chunkHasBeenPopulated(World world, int chunkX, int chunkZ) {
-		// NOTE: We assume the chunk has been populated if it is only on disk, 
+		// NOTE: We assume the chunk has been populated if it is only on disk,
 		//       because if we load it to check, it will be populated automatically.
-		return chunkIsLoaded(world, chunkX, chunkZ) ? 
-				world.getChunkFromChunkCoords(chunkX, chunkZ).isTerrainPopulated : 
+		return chunkIsLoaded(world, chunkX, chunkZ) ?
+				world.getChunkFromChunkCoords(chunkX, chunkZ).isTerrainPopulated :
 					chunkIsSaved(world, chunkX, chunkZ);
 	}
 
 	private static boolean chunkIsLoaded(World world, int chunkX, int chunkZ) {
 		return world.getChunkProvider().chunkExists(chunkX, chunkZ);
 	}
-	
+
 	private static boolean chunkIsSaved(World world, int chunkX, int chunkZ) {
 		if (world.getChunkProvider() instanceof ChunkProviderServer) {
 			IChunkLoader loader = ((ChunkProviderServer)world.getChunkProvider()).currentChunkLoader;
@@ -269,9 +268,9 @@ public class ServerState
                     if (worldInfo != null)
                     {
                         break;
-                    }                	
+                    }
                 }
-                
+
                 if (worldInfo == null)
                 {
                     return false;
@@ -351,16 +350,16 @@ public class ServerState
             button1.visible = !((Boolean)ReflectionHelper.getPrivateValue(GuiCreateWorld.class, gui, 11)).booleanValue();
         }
     }
-    
+
 	public static void chunkForced(World world, ChunkCoordIntPair location) {
 		if (forcingChunk) { // prevent infinite recursion when there are multiple chunk loaders
 			return;
 		}
 		forcingChunk = true;
-		
+
 		WorldConfig cfg = getWorldConfig(world);
 		int radius = (cfg.deferredPopulationRange + 15) / 16;
-        
+
         for (int cX = location.chunkXPos - radius; cX <= location.chunkXPos + radius; ++cX)
         {
             for (int cZ = location.chunkZPos - radius; cZ <= location.chunkZPos + radius; ++cZ)
@@ -370,7 +369,7 @@ public class ServerState
             	}
             }
         }
-        
+
         forcingChunk = false;
 	}
 }

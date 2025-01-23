@@ -1,19 +1,17 @@
 package CustomOreGen.Config;
 
+import CustomOreGen.Config.ConfigParser.ConfigExpressionEvaluator;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Hashtable;
 import java.util.LinkedList;
 import java.util.List;
-
 import org.w3c.dom.Attr;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.UserDataHandler;
-
-import CustomOreGen.Config.ConfigParser.ConfigExpressionEvaluator;
 
 public class ValidatorNode
 {
@@ -183,7 +181,7 @@ public class ValidatorNode
         for(ValidatorNode child : childList) {
         	child.validate();
         }
-        
+
         return childList;
     }
 
@@ -232,7 +230,7 @@ public class ValidatorNode
         {
             if (newNodes != null && newNodes.length > 0)
             {
-            	for (Node newNode : newNodes) 
+            	for (Node newNode : newNodes)
                 {
             		if (newNode != null)
                     {
@@ -288,7 +286,7 @@ public class ValidatorNode
             if (containerNodes != null && containerNodes.length > 0)
             {
                 ArrayList<Node> content = new ArrayList<Node>();
-                
+
                 for (Node containerNode : containerNodes) {
                 	if (containerNode != null)
                     {
@@ -386,7 +384,7 @@ public class ValidatorNode
             }
         }
     }
-    
+
     public static interface IValidatorFactory<T extends ValidatorNode>
     {
         T createValidator(ValidatorNode parent, Node node);

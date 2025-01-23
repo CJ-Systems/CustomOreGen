@@ -1,11 +1,5 @@
 package CustomOreGen.Server;
 
-import java.util.Random;
-
-import net.minecraft.util.MathHelper;
-import net.minecraft.world.World;
-import net.minecraft.world.gen.structure.StructureBoundingBox;
-
 import CustomOreGen.CustomOreGenBase;
 import CustomOreGen.Server.DistributionSettingMap.DistributionSetting;
 import CustomOreGen.Util.HeightScaledPDist;
@@ -16,6 +10,10 @@ import CustomOreGen.Util.PDist.Type;
 import CustomOreGen.Util.Transform;
 import CustomOreGen.Util.VolumeHelper;
 import CustomOreGen.Util.WireframeShapes;
+import java.util.Random;
+import net.minecraft.util.MathHelper;
+import net.minecraft.world.World;
+import net.minecraft.world.gen.structure.StructureBoundingBox;
 
 public class MapGenVeins extends MapGenOreDistribution
 {
@@ -148,7 +146,7 @@ public class MapGenVeins extends MapGenOreDistribution
         float mlX = (random.nextFloat() + (float)structureGroup.chunkX) * 16.0F;
         float mlZ = (random.nextFloat() + (float)structureGroup.chunkZ) * 16.0F;
         float mlY = this.mlHeight.getValue(random, this.worldObj, mlX, mlZ) + this.heightOffset.getValue(random);
-        
+
         if (!structureGroup.canPlaceComponentAt(0, mlX, mlY, mlZ, random))
         {
             return null;
@@ -248,7 +246,7 @@ public class MapGenVeins extends MapGenOreDistribution
             mat.transform(rot);
         }
     }
-    
+
     private class BezierTubeComponent extends Component
     {
         protected float[] mid;
@@ -517,7 +515,7 @@ public class MapGenVeins extends MapGenOreDistribution
                 while (this.context.advance(2.0F));
             }
         }
-        
+
         class interpolationContext
         {
             public float[] pos;
@@ -528,7 +526,7 @@ public class MapGenVeins extends MapGenOreDistribution
             public float t;
             public float dt;
             public boolean calcDer;
-    
+
             public interpolationContext()
             {
                 this.pos = new float[3];
@@ -589,7 +587,7 @@ public class MapGenVeins extends MapGenOreDistribution
                     this.err = d2;
                     this.radius = interpolateRadius(nt);
                     final float avg2R = r + this.radius;
-                    
+
                     float derErr = 666.0F;
                     float der_deltaX = 666.0F;
                     float der_deltaY = 666.0F;
@@ -647,7 +645,7 @@ public class MapGenVeins extends MapGenOreDistribution
 
                 throw new RuntimeException("CustomOreGen: Detected a possible infinite loop during bezier interpolation.  Please report this error.");
             }
-    
+
             @Override
             public String toString() {
                 return String.format("BezierTubeComponent.interpolationContext[pos(%f %f %f) der(%f %f %f) derLen %f radius %f err %f t %f dt %f calcDer %s]",
@@ -662,7 +660,7 @@ public class MapGenVeins extends MapGenOreDistribution
     }
 
 
-    public enum BranchType	
+    public enum BranchType
     {
     	Ellipsoid,
     	Bezier;
@@ -785,22 +783,22 @@ public class MapGenVeins extends MapGenOreDistribution
 	public int getAverageBranchLength() {
 		return this.getAverageBranchLength(this.brLength.mean);
 	}
-	
+
 	private int getAverageBranchLength(float length)
     {
         int avgBrLength = 0;
-        
+
         while (length > 0.0F)
         {
         	float segLen = this.sgLength.mean;
-            
+
         	if (segLen > length)
             {
                 segLen = length;
             }
         	avgBrLength += segLen;
             length -= segLen;
-            
+
             for (int axisTheta = Math.round(this.sgForkFrequency.mean); axisTheta > 0; --axisTheta)
             {
                 float fkLenMult = this.sgForkLenMult.mean;

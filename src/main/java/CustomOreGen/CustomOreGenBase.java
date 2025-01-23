@@ -1,20 +1,18 @@
 package CustomOreGen;
 
+import CustomOreGen.Server.ServerState;
+import CustomOreGen.Server.WorldConfig;
+import cpw.mods.fml.common.Loader;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
-
 import org.apache.logging.log4j.Logger;
-
-import CustomOreGen.Server.ServerState;
-import CustomOreGen.Server.WorldConfig;
-import cpw.mods.fml.common.Loader;
 
 public class CustomOreGenBase
 {
     public static Logger log;
-    
+
     public static final String OPTIONS_FILENAME = "CustomOreGen_Options.txt";
 	public static final String BASE_CONFIG_FILENAME = "CustomOreGen_Config.xml";
 	public static final String DEFAULT_BASE_CONFIG_FILENAME = "CustomOreGen_Config_Default.xml";
@@ -43,7 +41,7 @@ public class CustomOreGenBase
     private static void unpackConfigs() {
     	File configPath = getConfigDir();
         File modulesDir = new File(configPath, "modules");
-        
+
         File defaultModulesDir = new File(modulesDir, "default");
         if (defaultModulesDir.exists()) {
         	File[] defaultModules = defaultModulesDir.listFiles();
@@ -99,7 +97,7 @@ public class CustomOreGenBase
         for (String module : extraModules) {
         	unpackConfigFile("modules/" + module, new File(defaultModulesDir, module));
         }
-        
+
         new File(modulesDir, "custom").mkdir();
 
         unpackConfigFile(DEFAULT_BASE_CONFIG_FILENAME, new File(configPath, DEFAULT_BASE_CONFIG_FILENAME));
@@ -125,10 +123,10 @@ public class CustomOreGenBase
                 config = null;
             }
         }
-        
+
         return config;
 	}
-	
+
     public static boolean unpackConfigFile(String configName, File destination)
     {
     	String resourceName = "config/" + configName;
@@ -157,7 +155,7 @@ public class CustomOreGenBase
     public static File getConfigDir() {
     	return new File(Loader.instance().getConfigDir(), "CustomOreGen");
     }
-    
+
     public static boolean hasMystcraft()
     {
         if (_hasMystcraft == 0)
@@ -182,7 +180,7 @@ public class CustomOreGenBase
 
         return _hasMystcraft == 1;
     }
-    
+
     public static String getDisplayString() {
     	return FMLInterface.getDisplayString();
     }

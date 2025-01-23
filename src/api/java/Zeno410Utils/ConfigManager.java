@@ -3,7 +3,6 @@ package Zeno410Utils;
 
 import java.io.File;
 import java.util.logging.Logger;
-
 import net.minecraftforge.common.config.Configuration;
 
 /**
@@ -29,7 +28,7 @@ public class ConfigManager<Type extends Settings> {
         return tested != null;
     }
 
-    
+
     private void setWorldConfigFile(File newFile) {
         if ((worldConfigFile== null)||(!newFile.getAbsolutePath().equals(worldConfigFile.getAbsolutePath()))) {
             worldConfigFile = newFile;

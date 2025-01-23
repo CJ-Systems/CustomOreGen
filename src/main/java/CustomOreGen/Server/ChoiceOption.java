@@ -1,11 +1,10 @@
 package CustomOreGen.Server;
 
-import java.util.LinkedHashMap;
-
 import CustomOreGen.Util.CIStringMap;
 import CustomOreGen.Util.Localization;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import java.util.LinkedHashMap;
 
 public class ChoiceOption extends ConfigOption
 {
@@ -83,9 +82,9 @@ public class ChoiceOption extends ConfigOption
     {
         boolean found = false;
         String first = null;
-        
+
         for (String s : this._valueMap.keySet()) {
-        	
+
             if (first == null)
             {
                 first = s;
@@ -136,6 +135,6 @@ public class ChoiceOption extends ConfigOption
 
     @SideOnly(Side.CLIENT)
 	private String localize(String key, String value) {
-		return Localization.maybeLocalize(this.getName() + "." + this.getValue() + "." + key, value); 
+		return Localization.maybeLocalize(this.getName() + "." + this.getValue() + "." + key, value);
 	}
 }

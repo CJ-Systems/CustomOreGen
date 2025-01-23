@@ -1,10 +1,5 @@
 package CustomOreGen.Server;
 
-import java.util.Random;
-
-import net.minecraft.util.MathHelper;
-import net.minecraft.world.World;
-import net.minecraft.world.gen.structure.StructureBoundingBox;
 import CustomOreGen.Server.DistributionSettingMap.DistributionSetting;
 import CustomOreGen.Util.HeightScaledPDist;
 import CustomOreGen.Util.IGeometryBuilder;
@@ -14,6 +9,10 @@ import CustomOreGen.Util.PDist.Type;
 import CustomOreGen.Util.Transform;
 import CustomOreGen.Util.VolumeHelper;
 import CustomOreGen.Util.WireframeShapes;
+import java.util.Random;
+import net.minecraft.util.MathHelper;
+import net.minecraft.world.World;
+import net.minecraft.world.gen.structure.StructureBoundingBox;
 
 public class MapGenClusters extends MapGenOreDistribution
 {
@@ -32,7 +31,7 @@ public class MapGenClusters extends MapGenOreDistribution
             info = "Vertical height of the deposits.  Normal distributions are approximated."
     )
     public final HeightScaledPDist clHeight;
-    
+
     protected static final DistributionSettingMap _clusterSettingsMap = new DistributionSettingMap(MapGenClusters.class);
 
     public MapGenClusters(int distributionID, boolean canGenerate)
@@ -56,7 +55,7 @@ public class MapGenClusters extends MapGenOreDistribution
         float clX = (random.nextFloat() + (float)structureGroup.chunkX) * 16.0F;
         float clZ = (random.nextFloat() + (float)structureGroup.chunkZ) * 16.0F;
         float clY = this.clHeight.getValue(random, this.worldObj, clX, clZ) + this.heightOffset.getValue(random);
-        
+
         if (!structureGroup.canPlaceComponentAt(0, clX, clY, clZ, random))
         {
             return null;
@@ -68,7 +67,7 @@ public class MapGenClusters extends MapGenOreDistribution
             return cluster;
         }
     }
-    
+
     private class ClusterComponent extends Component
     {
         protected final int size;
@@ -218,7 +217,7 @@ public class MapGenClusters extends MapGenOreDistribution
 	private static float adjustRadius(double baseRadius, double fraction) {
 		return (float)((Math.sin(fraction * Math.PI) + 1.0F) * baseRadius + 0.5F);
 	}
-	
+
 	@Override
 	public double getAverageOreCount() {
 		int segLen = MathHelper.ceiling_float_int(this.clSize.mean / 8.0F) * 2;

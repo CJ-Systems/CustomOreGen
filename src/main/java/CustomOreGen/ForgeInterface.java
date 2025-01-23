@@ -1,5 +1,11 @@
 package CustomOreGen;
 
+import CustomOreGen.Client.ClientState;
+import CustomOreGen.Server.ServerState;
+import cpw.mods.fml.common.eventhandler.Event.Result;
+import cpw.mods.fml.common.eventhandler.SubscribeEvent;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.server.MinecraftServer;
@@ -9,14 +15,8 @@ import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.common.ForgeChunkManager.ForceChunkEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.terraingen.OreGenEvent;
-import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.event.world.ChunkEvent;
-import CustomOreGen.Client.ClientState;
-import CustomOreGen.Server.ServerState;
-import cpw.mods.fml.common.eventhandler.Event.Result;
-import cpw.mods.fml.common.eventhandler.SubscribeEvent;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
+import net.minecraftforge.event.world.WorldEvent;
 
 public class ForgeInterface
 {
@@ -57,23 +57,23 @@ public class ForgeInterface
     {
     	// TODO: call populateDistributions, but instruct it to only generate if there is a version, and it's old
     }
-    
+
     @SubscribeEvent
     public void onGenerateMinable(OreGenEvent.GenerateMinable event)
     {
     	ServerState.checkIfServerChanged(MinecraftServer.getServer(), event.world.getWorldInfo());
         boolean vanillaOreGen = ServerState.getWorldConfig(event.world).vanillaOreGen;
         boolean isCustom = event.type == OreGenEvent.GenerateMinable.EventType.CUSTOM;
-        boolean isOre = event.type != OreGenEvent.GenerateMinable.EventType.GRAVEL && 
-        		        event.type != OreGenEvent.GenerateMinable.EventType.DIRT; 
+        boolean isOre = event.type != OreGenEvent.GenerateMinable.EventType.GRAVEL &&
+        		        event.type != OreGenEvent.GenerateMinable.EventType.DIRT;
         event.setResult((vanillaOreGen || isCustom || !isOre) ? Result.ALLOW : Result.DENY);
     }
-    
+
     @SubscribeEvent
     public void onForceChunk(ForceChunkEvent event) {
     	ServerState.chunkForced(event.ticket.world, event.location);
     }
-    
+
     public static String getWorldDimensionFolder(World world)
     {
         return world.provider.getSaveFolder();

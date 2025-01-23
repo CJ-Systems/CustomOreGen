@@ -1,5 +1,14 @@
 package CustomOreGen.Server;
 
+import CustomOreGen.Config.ConfigParser;
+import CustomOreGen.Config.PropertyIO;
+import CustomOreGen.CustomOreGenBase;
+import CustomOreGen.ForgeInterface;
+import CustomOreGen.Util.BiomeDescriptor;
+import CustomOreGen.Util.BlockDescriptor;
+import CustomOreGen.Util.CIStringMap;
+import CustomOreGen.Util.MapCollection;
+import com.google.common.collect.Maps;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -12,9 +21,7 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import javax.xml.parsers.ParserConfigurationException;
-
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.IChunkProvider;
 import net.minecraft.world.gen.ChunkProviderEnd;
@@ -23,19 +30,7 @@ import net.minecraft.world.gen.ChunkProviderGenerate;
 import net.minecraft.world.gen.ChunkProviderHell;
 import net.minecraft.world.storage.SaveHandler;
 import net.minecraft.world.storage.WorldInfo;
-
 import org.xml.sax.SAXException;
-
-import CustomOreGen.CustomOreGenBase;
-import CustomOreGen.ForgeInterface;
-import CustomOreGen.Config.ConfigParser;
-import CustomOreGen.Config.PropertyIO;
-import CustomOreGen.Util.BiomeDescriptor;
-import CustomOreGen.Util.BlockDescriptor;
-import CustomOreGen.Util.CIStringMap;
-import CustomOreGen.Util.MapCollection;
-
-import com.google.common.collect.Maps;
 
 public class WorldConfig
 {
@@ -115,7 +110,7 @@ public class WorldConfig
             	dimensionBasename = ForgeInterface.getWorldDimensionFolder(world);
             }
 
-            if (worldBaseDir == null)	
+            if (worldBaseDir == null)
             {
                 dimensionDir = new File(dimensionBasename);
             }
@@ -132,7 +127,7 @@ public class WorldConfig
             if (!dimensionDir.exists())
             	dimensionDir.mkdir();
         }
-        
+
         this.world = world;
         this.worldInfo = worldInfo;
         populateWorldProperties(this.worldProperties, world, worldInfo);
@@ -158,19 +153,19 @@ public class WorldConfig
         File[] configFileList = new File[3];
         int configFileDepth = this.buildFileList(CustomOreGenBase.BASE_CONFIG_FILENAME, configFileList, true);
 
-        if (configFileDepth >= 0) 
+        if (configFileDepth >= 0)
         {
         	configFile = configFileList[configFileDepth];
-        } 
-        else 
+        }
+        else
         {
         	File defaultConfigFile = new File(globalConfigDir, CustomOreGenBase.DEFAULT_BASE_CONFIG_FILENAME);
-        	if (defaultConfigFile.exists()) 
+        	if (defaultConfigFile.exists())
         	{
         		configFile = defaultConfigFile;
         		configFileDepth = 0;
         	}
-        	else 
+        	else
         	{
         		if (dimensionDir != null)
         		{
@@ -182,7 +177,7 @@ public class WorldConfig
         		}
         	}
         }
-        
+
         if (configFile != null) {
             File[] optionsFileList = new File[3];
             this.buildFileList(CustomOreGenBase.OPTIONS_FILENAME, optionsFileList, false);
@@ -207,7 +202,7 @@ public class WorldConfig
             		loadOptions(optionsFileList[1], null, saveLevelOptions);
             	}
             }
-            
+
             if (optionsFile != null)
             {
             	putOptions(this.configOptions.values(), this.loadedOptions);
@@ -253,7 +248,7 @@ public class WorldConfig
             {
                 CustomOreGenBase.log.warn("Choice Option \'" + vangen + "\' not found in config file - defaulting to \'" + this.vanillaOreGen + "\'.");
             }
-            
+
         }
     }
 
@@ -443,10 +438,10 @@ public class WorldConfig
     {
         return this.worldProperties.get(propertyName);
     }
-    
+
 	public BiomeDescriptor getBiomeSet(String namePattern) {
         return this.biomeSets.get(namePattern);
-	}	
+	}
 
 	public BlockDescriptor getEquivalentBlockDescriptor() {
 		if (this.equivalentBlockDescriptor == null) {
@@ -478,7 +473,7 @@ public class WorldConfig
 	public void registerBiomeSet(BiomeDescriptor biomeSet) {
 		this.biomeSets.put(biomeSet.getName(), biomeSet);
 	}
-	
+
 	public int nextDistributionID() {
 		return this.idCounter++;
 	}

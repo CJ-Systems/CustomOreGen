@@ -1,9 +1,8 @@
 package CustomOreGen.Config;
 
+import CustomOreGen.Config.ExpressionEvaluator.EvaluatorException;
 import org.w3c.dom.Node;
 import org.w3c.dom.UserDataHandler;
-
-import CustomOreGen.Config.ExpressionEvaluator.EvaluatorException;
 
 public class ValidatorExpression extends ValidatorSimpleNode
 {
@@ -31,7 +30,7 @@ public class ValidatorExpression extends ValidatorSimpleNode
         this.replaceWithNode(new Node[] {value == null ? null : this.getNode().getOwnerDocument().createTextNode(value.toString())});
         return false;
     }
-    
+
     public static class Factory implements IValidatorFactory<ValidatorExpression>
     {
         private final ExpressionEvaluator _evaluator;

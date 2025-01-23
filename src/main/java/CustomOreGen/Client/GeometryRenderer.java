@@ -1,5 +1,7 @@
 package CustomOreGen.Client;
 
+import CustomOreGen.Util.IGeometryBuilder;
+import CustomOreGen.Util.Transform;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.IntBuffer;
@@ -7,11 +9,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-
 import org.lwjgl.opengl.GL11;
-
-import CustomOreGen.Util.IGeometryBuilder;
-import CustomOreGen.Util.Transform;
 
 public class GeometryRenderer implements IGeometryBuilder
 {
@@ -473,7 +471,7 @@ public class GeometryRenderer implements IGeometryBuilder
             }
         }
     }
-    
+
     public class VertexBuffer
     {
         public final int renderMode;

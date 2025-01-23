@@ -1,5 +1,7 @@
 package CustomOreGen.Server;
 
+import CustomOreGen.Config.ConfigParser;
+import CustomOreGen.Util.CIStringMap;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -9,9 +11,6 @@ import java.lang.reflect.Modifier;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
-
-import CustomOreGen.Config.ConfigParser;
-import CustomOreGen.Util.CIStringMap;
 
 public class DistributionSettingMap
 {
@@ -32,7 +31,7 @@ public class DistributionSettingMap
     public Map<String,String> getDescriptions()
     {
         CIStringMap<String> descriptions = new CIStringMap<String>(new LinkedHashMap<String, String>());
-        
+
         for (Entry<String,Object[]> entry : this._settingMap.entrySet()) {
         	DistributionSetting s = (DistributionSetting)(entry.getValue())[1];
             descriptions.put(s.name(), s.info());
@@ -181,12 +180,12 @@ public class DistributionSettingMap
             }
         }
     }
-    
+
     public interface Copyable<T>
     {
         void copyFrom(T var1);
     }
-    
+
     @Retention(RetentionPolicy.RUNTIME)
     @Target( {ElementType.FIELD})
     public @interface DistributionSetting

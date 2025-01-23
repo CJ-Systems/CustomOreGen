@@ -1,13 +1,13 @@
 
 package Zeno410Utils;
 
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.common.config.Property;
-import java.io.DataInput;
-import java.io.IOException;
-import java.io.DataOutput;
 
 
 /**
@@ -203,7 +203,7 @@ abstract public class Settings implements Streamable {
             output.writeDouble(defaultValue);
         }
     }
-    
+
     abstract protected class Setting<Type> implements Mutable<Type>, Streamable {
         protected boolean set = false;
         protected Type value;

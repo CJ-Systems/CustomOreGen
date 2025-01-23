@@ -1,16 +1,5 @@
 package CustomOreGen;
 
-import java.lang.reflect.Method;
-import java.util.Random;
-
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiCreateWorld;
-import net.minecraft.client.gui.GuiMainMenu;
-import net.minecraft.client.gui.GuiSelectWorld;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.world.World;
-import net.minecraft.world.chunk.IChunkProvider;
-import net.minecraft.world.storage.WorldInfo;
 import CustomOreGen.Client.ClientState;
 import CustomOreGen.Server.ConsoleCommands;
 import CustomOreGen.Server.ServerState;
@@ -33,6 +22,16 @@ import cpw.mods.fml.common.gameevent.TickEvent.ServerTickEvent;
 import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import java.lang.reflect.Method;
+import java.util.Random;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiCreateWorld;
+import net.minecraft.client.gui.GuiMainMenu;
+import net.minecraft.client.gui.GuiSelectWorld;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.world.World;
+import net.minecraft.world.chunk.IChunkProvider;
+import net.minecraft.world.storage.WorldInfo;
 
 @Mod(modid="CustomOreGen", useMetadata=true)
 public class FMLInterface implements IWorldGenerator
@@ -55,18 +54,18 @@ public class FMLInterface implements IWorldGenerator
     {
     	CustomOreGenBase.onModPostLoad();
     }
-    
+
     @EventHandler
     public void onServerStarting(FMLServerStartingEvent event)
     {
-        ServerState.checkIfServerChanged(MinecraftServer.getServer(), (WorldInfo)null);    
+        ServerState.checkIfServerChanged(MinecraftServer.getServer(), (WorldInfo)null);
         registerCommands(event);
     }
 
     private void registerCommands(FMLServerStartingEvent event) {
     	CustomOreGenBase.log.debug("Registering Console command interface ...");
         ConsoleCommands commands = new ConsoleCommands();
-        
+
         for (Method method : ConsoleCommands.class.getMethods()) {
         	if (method.getAnnotation(CommandDelegate.class) != null)
             {
@@ -80,7 +79,7 @@ public class FMLInterface implements IWorldGenerator
         ServerState.checkIfServerChanged(MinecraftServer.getServer(), world.getWorldInfo());
         ServerState.onPopulateChunk(world, chunkX, chunkZ, random);
     }
-    
+
     @SubscribeEvent
     public void onServerTick(ServerTickEvent event)
     {

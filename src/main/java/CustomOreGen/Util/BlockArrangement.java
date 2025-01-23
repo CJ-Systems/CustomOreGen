@@ -1,7 +1,6 @@
 package CustomOreGen.Util;
 
 import java.util.Random;
-
 import net.minecraft.block.Block;
 import net.minecraft.world.World;
 
@@ -16,12 +15,12 @@ public class BlockArrangement {
 		this.below = below;
 		this.beside = beside;
 	}
-	
+
 	public boolean matchesAt(World world, Random rand, int x, int y, int z) {
-		return 
+		return
 			this.descriptorMatchesAt(center, world, rand, x, y, z) &&
 			this.descriptorMatchesAt(above, world, rand, x, y + 1, z) &&
-			this.descriptorMatchesAt(below, world, rand, x, y - 1, z) && 
+			this.descriptorMatchesAt(below, world, rand, x, y - 1, z) &&
 			(this.descriptorMatchesAt(beside, world, rand, x + 1, y, z) ||
 			 this.descriptorMatchesAt(beside, world, rand, x, y, z + 1) ||
 			 this.descriptorMatchesAt(beside, world, rand, x - 1, y, z) ||
@@ -40,7 +39,7 @@ public class BlockArrangement {
 		}
 		return fastCheck == 1;
 	}
-	
+
 	public BlockDescriptor getCenter() {
 		return center;
 	}

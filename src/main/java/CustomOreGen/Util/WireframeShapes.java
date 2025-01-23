@@ -1,9 +1,8 @@
 package CustomOreGen.Util;
 
+import CustomOreGen.Util.IGeometryBuilder.PrimitiveType;
 import java.util.Hashtable;
 import java.util.Map;
-
-import CustomOreGen.Util.IGeometryBuilder.PrimitiveType;
 
 public class WireframeShapes
 {

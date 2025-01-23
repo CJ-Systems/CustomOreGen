@@ -1,10 +1,14 @@
 package CustomOreGen.Server;
 
+import CustomOreGen.Server.ConfigOption.DisplayGroup;
+import CustomOreGen.Util.Localization;
+import cpw.mods.fml.relauncher.ReflectionHelper;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.client.gui.FontRenderer;
@@ -16,15 +20,8 @@ import net.minecraft.client.gui.GuiSlot;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.settings.GameSettings;
 import net.minecraft.util.ResourceLocation;
-
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
-
-import CustomOreGen.Server.ConfigOption.DisplayGroup;
-import CustomOreGen.Util.Localization;
-import cpw.mods.fml.relauncher.ReflectionHelper;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
 public class GuiCustomOreGenSettings extends GuiScreen
@@ -98,9 +95,9 @@ public class GuiCustomOreGenSettings extends GuiScreen
         this.refreshGui = 0;
         Vector<ConfigOption.DisplayGroup> visibleGroups1 = new Vector<DisplayGroup>();
         Vector<ConfigOption> visibleOptions1 = new Vector<ConfigOption>();
-        
+
         nextOption: for (ConfigOption option : WorldConfig.loadedOptionOverrides[0]) {
-        	
+
             ConfigOption.DisplayGroup group;
 
             if (option instanceof ConfigOption.DisplayGroup)
@@ -219,7 +216,7 @@ public class GuiCustomOreGenSettings extends GuiScreen
             this.initGui();
         }
     }
-     
+
     public class GuiGroupPanel
     {
         protected int posX;
@@ -375,7 +372,7 @@ public class GuiCustomOreGenSettings extends GuiScreen
             if (buttonID == 0)
             {
                 this._currentButton = null;
-                
+
                 for (IOptionControl control : this._groupButtons) {
                     if (control.getControl().mousePressed(mc, mouseX, mouseY))
                     {
@@ -395,7 +392,7 @@ public class GuiCustomOreGenSettings extends GuiScreen
                 }
             }
         }
-        
+
         class GuiGroupButton extends GuiButton implements IOptionControl
         {
             protected final ConfigOption.DisplayGroup _group;
@@ -489,7 +486,7 @@ public class GuiCustomOreGenSettings extends GuiScreen
         }
 
     }
-    
+
     public class GuiOptionSlot extends GuiSlot
     {
         protected final Vector<IOptionControl> _optionControls;
@@ -504,7 +501,7 @@ public class GuiCustomOreGenSettings extends GuiScreen
             for (int c = 0; c < options.size(); ++c)
             {
                 ConfigOption option = options.get(c);
-                
+
                 if (option instanceof ChoiceOption)
                 {
                     this._optionControls.add(new GuiChoiceButton(c, 2 * width / 5 + 15, 0, width / 10 + 100, slotHeight - 6, (ChoiceOption)option));
@@ -595,7 +592,7 @@ public class GuiCustomOreGenSettings extends GuiScreen
                 this._clickTarget = null;
             }
         }
-        
+
         class GuiChoiceButton extends GuiButton implements IOptionControl
         {
             private final ChoiceOption _choice;
@@ -671,17 +668,17 @@ public class GuiCustomOreGenSettings extends GuiScreen
         class GuiNumericSlider extends GuiOptionSlider implements IOptionControl
         {
             private final NumericOption _numeric;
-            
+
             public GuiNumericSlider(int id, int x, int y, int width, int height, NumericOption numeric)
             {
-                super(id, x, y, GameSettings.Options.ANAGLYPH);            
+                super(id, x, y, GameSettings.Options.ANAGLYPH);
                 this._numeric = numeric;
                 super.width = width;
                 super.height = height;
                 ReflectionHelper.setPrivateValue(GuiOptionSlider.class, this, (float)numeric.getNormalizedDisplayValue(), 0);
                 this.onValueChanged();
             }
-            
+
 			public ConfigOption getOption()
             {
                 return this._numeric;
@@ -705,7 +702,7 @@ public class GuiCustomOreGenSettings extends GuiScreen
 
                 super.displayString = String.format("%." + prec + "f", new Object[] {Double.valueOf(this._numeric.getDisplayValue())});
             }
-            
+
             private void updateSliderValue(int mouseX) {
             	double sliderValue = (float)(mouseX - (this.xPosition + 4)) / (float)(this.width - 8);
 
@@ -718,7 +715,7 @@ public class GuiCustomOreGenSettings extends GuiScreen
                 {
                     sliderValue = 1.0F;
                 }
-                
+
                 this._numeric.setNormalizedDisplayValue(sliderValue);
             	this.onValueChanged();
             }

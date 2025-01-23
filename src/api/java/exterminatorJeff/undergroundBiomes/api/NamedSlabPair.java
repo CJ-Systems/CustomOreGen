@@ -1,7 +1,8 @@
 package exterminatorJeff.undergroundBiomes.api;
-import Zeno410Utils.*;
-import net.minecraft.block.Block;
+
+import Zeno410Utils.Zeno410Logger;
 import java.util.logging.Logger;
+import net.minecraft.block.Block;
 
 /**
  *

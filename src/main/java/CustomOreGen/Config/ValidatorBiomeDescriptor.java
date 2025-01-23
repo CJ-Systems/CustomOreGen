@@ -1,14 +1,13 @@
 package CustomOreGen.Config;
 
-import org.w3c.dom.Node;
-
 import CustomOreGen.Util.BiomeDescriptor.BiomeRestriction;
+import org.w3c.dom.Node;
 
 public class ValidatorBiomeDescriptor extends ValidatorNode
 {
     public String biome = null;
     public float weight = 1.0F;
-    public BiomeRestriction restriction = new BiomeRestriction(); 
+    public BiomeRestriction restriction = new BiomeRestriction();
 
     protected ValidatorBiomeDescriptor(ValidatorNode parent, Node node)
     {
@@ -29,13 +28,13 @@ public class ValidatorBiomeDescriptor extends ValidatorNode
         float minHeightVariation = this.validateNamedAttribute(Float.class, "MinHeightVariation", restriction.minHeightVariation, true);
         float maxHeightVariation = this.validateNamedAttribute(Float.class, "MaxHeightVariation", restriction.maxHeightVariation, true);
         this.restriction = new BiomeRestriction(
-        		minTemperature, maxTemperature, 
+        		minTemperature, maxTemperature,
         		minRainfall, maxRainfall,
         		minTreesPerChunk, maxTreesPerChunk,
         		minHeightVariation, maxHeightVariation);
         return true;
     }
-    
+
     public static class Factory implements IValidatorFactory<ValidatorBiomeDescriptor>
     {
         public ValidatorBiomeDescriptor createValidator(ValidatorNode parent, Node node)

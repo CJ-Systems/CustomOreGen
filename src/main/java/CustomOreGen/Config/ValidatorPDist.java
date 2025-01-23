@@ -1,11 +1,10 @@
 package CustomOreGen.Config;
 
-import org.w3c.dom.Node;
-
 import CustomOreGen.Server.IOreDistribution;
 import CustomOreGen.Util.HeightScaledPDist;
 import CustomOreGen.Util.PDist;
 import CustomOreGen.Util.PDist.Type;
+import org.w3c.dom.Node;
 
 public class ValidatorPDist extends ValidatorNode
 {
@@ -25,7 +24,7 @@ public class ValidatorPDist extends ValidatorNode
         this.name = (String)this.validateRequiredAttribute(String.class, "Name", true);
 
         HeightScaledPDist heightScaledPDist = null;
-        
+
         if (this._parentDist == null)
         {
             this.pdist = new PDist();
@@ -41,7 +40,7 @@ public class ValidatorPDist extends ValidatorNode
         	} else {
         		throw new ParserException("Setting \'" + this.name + "\' in \'"+this._parentDist.toString()+"\' is not supported by this distribution.", this.getNode());
         	}
-            
+
             if (this.pdist == null)
             {
                 throw new ParserException("Setting \'" + this.name + "\' in \'"+this._parentDist.toString()+"\' is not supported by this distribution.", this.getNode());
@@ -51,7 +50,7 @@ public class ValidatorPDist extends ValidatorNode
         this.pdist.mean =  this.validateNamedAttribute(Float.class, "Avg", this.pdist.mean, true);
         this.pdist.range = this.validateNamedAttribute(Float.class, "Range", this.pdist.range, true);
         this.pdist.type = this.validateNamedAttribute(Type.class, "Type", this.pdist.type, true);
-        
+
         HeightScaleType scaleType = this.validateNamedAttribute(HeightScaleType.class, "ScaleTo", null, true);
         if (scaleType != null) {
         	if (heightScaledPDist == null) {
@@ -60,7 +59,7 @@ public class ValidatorPDist extends ValidatorNode
         		heightScaledPDist.scaleTo = scaleType.getHeightScale();
         	}
         }
-        
+
         if (this._parentDist != null)
         {
             try
@@ -79,7 +78,7 @@ public class ValidatorPDist extends ValidatorNode
 
         return true;
     }
-    
+
     public static class Factory implements IValidatorFactory<ValidatorPDist>
     {
         private final IOreDistribution _parentDist;

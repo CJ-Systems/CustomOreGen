@@ -1,15 +1,5 @@
 package CustomOreGen.Server;
 
-import java.util.Map;
-import java.util.Random;
-
-import net.minecraft.block.Block;
-import net.minecraft.block.material.Material;
-import net.minecraft.init.Blocks;
-import net.minecraft.world.World;
-import net.minecraft.world.biome.BiomeGenBase;
-import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.gen.feature.WorldGenerator;
 import CustomOreGen.Server.DistributionSettingMap.DistributionSetting;
 import CustomOreGen.Util.BiomeDescriptor;
 import CustomOreGen.Util.BlockArrangement;
@@ -17,6 +7,15 @@ import CustomOreGen.Util.BlockDescriptor;
 import CustomOreGen.Util.BlockDescriptor.BlockInfo;
 import CustomOreGen.Util.GeometryStream;
 import CustomOreGen.Util.TileEntityHelper;
+import java.util.Map;
+import java.util.Random;
+import net.minecraft.block.Block;
+import net.minecraft.block.material.Material;
+import net.minecraft.init.Blocks;
+import net.minecraft.world.World;
+import net.minecraft.world.biome.BiomeGenBase;
+import net.minecraft.world.chunk.Chunk;
+import net.minecraft.world.gen.feature.WorldGenerator;
 
 public class WorldGenSubstitution extends WorldGenerator implements IOreDistribution
 {
@@ -26,99 +25,99 @@ public class WorldGenSubstitution extends WorldGenerator implements IOreDistribu
             info = "Descriptive distribution name."
     )
     public String name;
-    
+
     @DistributionSetting(
             name = "DisplayName",
             inherited = false,
             info = "Distribution name for display in user interfaces."
     )
     public String displayName;
-    
+
     @DistributionSetting(
             name = "Seed",
             inherited = false,
             info = "Distribution random number seed."
     )
     public long seed;
-    
+
     @DistributionSetting(
             name = "OreBlock",
             info = "Ore block(s) - total weight must not be more than 100%"
     )
     public final BlockDescriptor oreBlock;
-    
+
     @DistributionSetting(
             name = "Replaces",
             info = "List of replaceable blocks"
     )
     public final BlockDescriptor replaceableBlocks;
-    
+
     @DistributionSetting(
             name = "PlacesAbove",
             info = "List of blocks allowed below generated block"
     )
     public final BlockDescriptor belowBlocks;
-    
+
     @DistributionSetting(
             name = "PlacesBelow",
             info = "List of blocks allowed above generated block"
     )
     public final BlockDescriptor aboveBlocks;
-    
+
     @DistributionSetting(
             name = "PlacesBeside",
             info = "List of blocks allowed beside generated block"
     )
     public final BlockDescriptor besideBlocks;
-    
+
     @DistributionSetting(
             name = "TargetBiome",
             info = "List of valid target biomes"
     )
     public final BiomeDescriptor biomes;
-    
+
     @DistributionSetting(
             name = "additionalRange",
             info = "Distance outside of current chunk to scan in every pass, in meters"
     )
     public int additionalRange;
-    
+
     @DistributionSetting(
             name = "minHeight",
             info = "Minimum substitution height"
     )
     public int minHeight;
-    
+
     @DistributionSetting(
             name = "maxHeight",
             info = "Maximum substitution height"
     )
     public int maxHeight;
-    
+
     @DistributionSetting(
             name = "minSurfRelHeight",
             info = "Minimum surface-relative substitution height"
     )
     public int minSurfRelHeight;
-    
+
     @DistributionSetting(
             name = "maxSurfRelHeight",
             info = "Maximum surface-relative substitution height"
     )
     public int maxSurfRelHeight;
-    
+
     @DistributionSetting(
             name = "populatedChunks",
             info = "Chunks populated during current game session."
     )
     public int populatedChunks;
-    
+
     @DistributionSetting(
             name = "placedBlocks",
             info = "Blocks placed during current game session."
     )
     public long placedBlocks;
-    
+
     protected boolean _valid;
     protected final boolean _canGenerate;
     protected static final DistributionSettingMap settingMap = new DistributionSettingMap(WorldGenSubstitution.class);
@@ -293,14 +292,14 @@ public class WorldGenSubstitution extends WorldGenerator implements IOreDistribu
                                 	if (this.minSurfRelHeight != Integer.MIN_VALUE || this.maxSurfRelHeight != Integer.MAX_VALUE) {
                                 		int surfh = findSurfaceHeight(chunk, x, z);
 	                                	xzminh = Math.max(xzminh, this.minSurfRelHeight + surfh);
-	                                	xzmaxh = Math.min(xzmaxh, this.maxSurfRelHeight + 
+	                                	xzmaxh = Math.min(xzmaxh, this.maxSurfRelHeight +
 	                                			                  Math.min(surfh, Integer.MAX_VALUE - this.maxSurfRelHeight));
                                 	}
                                     for (int y = xzminh; y <= xzmaxh; ++y)
                                     {
                                     	int worldX = chunkX * 16 + x;
                                     	int worldZ = chunkZ * 16 + z;
-                                    	if (arrangement.matchesAt(world, random, worldX, y, worldZ)) {	
+                                    	if (arrangement.matchesAt(world, random, worldX, y, worldZ)) {
                                             BlockInfo match = this.oreBlock.getMatchingBlock(random);
                                             if (match == null)
                                             {
@@ -308,7 +307,7 @@ public class WorldGenSubstitution extends WorldGenerator implements IOreDistribu
                                             }
                                             int matchMeta = match.getMetadata();
                                             Block matchBlock = match.getBlock();
-                                            if (match != null && matchBlock.canBlockStay(world, worldX, y, worldZ) && 
+                                            if (match != null && matchBlock.canBlockStay(world, worldX, y, worldZ) &&
                                             	world.setBlock(worldX, y, worldZ, matchBlock, matchMeta, 2))
                                             {
                                                 ++this.placedBlocks;
@@ -335,18 +334,18 @@ public class WorldGenSubstitution extends WorldGenerator implements IOreDistribu
 
     private boolean isSurfaceBlock(Block block) {
     	Material material = block.getMaterial();
-    	return 
-    	  material == Material.clay || 
-		  material == Material.grass || 
-		  material == Material.ground || 
+    	return
+    	  material == Material.clay ||
+		  material == Material.grass ||
+		  material == Material.ground ||
 		  material == Material.ice ||
 		  material == Material.rock ||
 		  material == Material.sand;
     }
-    
+
     private int findSurfaceHeight(Chunk chunk, int x, int z) {
     	int surfh = chunk.getHeightValue(x, z);
-		while (surfh > 0 && !isSurfaceBlock(chunk.getBlock(x, surfh, z))) 
+		while (surfh > 0 && !isSurfaceBlock(chunk.getBlock(x, surfh, z)))
 		{
 			surfh--;
 		}

@@ -1,13 +1,11 @@
 package CustomOreGen.Config;
 
-import java.util.Iterator;
-
-import org.w3c.dom.Node;
-
 import CustomOreGen.CustomOreGenBase;
 import CustomOreGen.Server.ChoiceOption;
 import CustomOreGen.Server.ConfigOption;
 import CustomOreGen.Server.NumericOption;
+import java.util.Iterator;
+import org.w3c.dom.Node;
 
 public class ValidatorOption extends ValidatorNode
 {
@@ -135,7 +133,7 @@ public class ValidatorOption extends ValidatorNode
             }
         }
     }
-    
+
     public static class Factory implements IValidatorFactory<ValidatorOption>
     {
         private final Class<? extends ConfigOption> _type;

@@ -1,9 +1,8 @@
 package CustomOreGen.Config;
 
+import CustomOreGen.Config.ExpressionEvaluator.EvaluatorException;
 import org.w3c.dom.Node;
 import org.w3c.dom.UserDataHandler;
-
-import CustomOreGen.Config.ExpressionEvaluator.EvaluatorException;
 
 public class ValidatorSimpleNode extends ValidatorNode
 {
@@ -59,7 +58,7 @@ public class ValidatorSimpleNode extends ValidatorNode
                 {
                     this.content = ConfigParser.parseString(this._targetClass, ex.toString());
                 }
-            } 
+            }
             else
             {
                 this.content = ConfigParser.parseString(this._targetClass, input1);
@@ -76,7 +75,7 @@ public class ValidatorSimpleNode extends ValidatorNode
             throw new ParserException(var5.getMessage(), this.getNode(), var5);
         }
     }
-    
+
     public static class Factory implements IValidatorFactory<ValidatorSimpleNode>
     {
         private final Class<? extends Object> _targetClass;

@@ -1,10 +1,5 @@
 package CustomOreGen.Server;
 
-import java.util.Random;
-
-import net.minecraft.util.MathHelper;
-import net.minecraft.world.World;
-import net.minecraft.world.gen.structure.StructureBoundingBox;
 import CustomOreGen.Server.DistributionSettingMap.DistributionSetting;
 import CustomOreGen.Util.HeightScaledPDist;
 import CustomOreGen.Util.IGeometryBuilder;
@@ -14,6 +9,10 @@ import CustomOreGen.Util.PDist;
 import CustomOreGen.Util.PDist.Type;
 import CustomOreGen.Util.Transform;
 import CustomOreGen.Util.WireframeShapes;
+import java.util.Random;
+import net.minecraft.util.MathHelper;
+import net.minecraft.world.World;
+import net.minecraft.world.gen.structure.StructureBoundingBox;
 
 public class MapGenCloud extends MapGenOreDistribution
 {
@@ -85,7 +84,7 @@ public class MapGenCloud extends MapGenOreDistribution
         float clX = (random.nextFloat() + (float)structureGroup.chunkX) * 16.0F;
         float clZ = (random.nextFloat() + (float)structureGroup.chunkZ) * 16.0F;
         float clY = this.clHeight.getValue(random, this.worldObj, clX, clZ) + this.heightOffset.getValue(random);
-        
+
         if (!structureGroup.canPlaceComponentAt(0, clX, clY, clZ, random))
         {
             return null;
@@ -104,7 +103,7 @@ public class MapGenCloud extends MapGenOreDistribution
             return cloud;
         }
     }
-    
+
     private class DiffuseCloudComponent extends Component
     {
         protected final Transform mat;
@@ -212,9 +211,9 @@ public class MapGenCloud extends MapGenOreDistribution
                                     }
                                 }
 
-                                if (orVolumeNoiseCutoff.getMin() <= 1.0F && 
-                                	(orVolumeNoiseCutoff.getMax() <= 0.0F || 
-                                	 (this.getNoise(pos[0], pos[1], pos[2]) + 1.0F) / 2.0F >= orVolumeNoiseCutoff.getValue(random)) && 
+                                if (orVolumeNoiseCutoff.getMin() <= 1.0F &&
+                                	(orVolumeNoiseCutoff.getMax() <= 0.0F ||
+                                	 (this.getNoise(pos[0], pos[1], pos[2]) + 1.0F) / 2.0F >= orVolumeNoiseCutoff.getValue(random)) &&
                                 	orDensity.getIntValue(random, world, x, z) >= 1)
                                 {
                                     this.attemptPlaceBlock(world, random, x, y, z, bounds);

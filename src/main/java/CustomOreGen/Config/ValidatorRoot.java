@@ -1,7 +1,6 @@
 package CustomOreGen.Config;
 
 import java.util.Collection;
-
 import org.w3c.dom.Node;
 import org.w3c.dom.UserDataHandler;
 
@@ -34,7 +33,7 @@ public class ValidatorRoot extends ValidatorNode
 
         return true;
     }
-    
+
     public static class Factory implements IValidatorFactory<ValidatorRoot>
     {
         private final Collection<String> _topLevelNodes;

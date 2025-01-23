@@ -1,5 +1,7 @@
 package CustomOreGen.Util;
 
+import CustomOreGen.Server.DistributionSettingMap.Copyable;
+import cpw.mods.fml.common.registry.GameData;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Hashtable;
@@ -9,15 +11,12 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Random;
 import java.util.regex.Pattern;
-
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.oredict.OreDictionary;
-import CustomOreGen.Server.DistributionSettingMap.Copyable;
-import cpw.mods.fml.common.registry.GameData;
 
 public class BlockDescriptor implements Copyable<BlockDescriptor>
 {
@@ -26,14 +25,14 @@ public class BlockDescriptor implements Copyable<BlockDescriptor>
         private Block block;
         private int metadata;
         private NBTTagCompound nbt;
-        
+
         public BlockInfo(Block block, int metadata, NBTTagCompound nbt) {
 			super();
 			this.block = block;
 			this.metadata = metadata;
 			this.nbt = nbt;
 		}
-        
+
 		@Override
         public int hashCode()
         {
@@ -42,7 +41,7 @@ public class BlockDescriptor implements Copyable<BlockDescriptor>
             	code ^= nbt.hashCode();
             return code;
         }
-		
+
         @Override
         public boolean equals(Object o)
         {
@@ -63,17 +62,17 @@ public class BlockDescriptor implements Copyable<BlockDescriptor>
 			return this.nbt;
 		}
     }
-	
+
 	private static class Match
     {
 		public final float weight;
-		
+
 		public Match(float weight) {
 			super();
 			this.weight = weight;
 		}
     }
-	
+
     protected LinkedList<Descriptor> _descriptors = new LinkedList<Descriptor>();
     protected Map<BlockInfo,Match> _matches = new Hashtable<BlockInfo,Match>();
     protected boolean _compiled = false;
@@ -104,7 +103,7 @@ public class BlockDescriptor implements Copyable<BlockDescriptor>
 	public BlockDescriptor set(Block block) {
 		return this.set(Block.blockRegistry.getNameForObject(block));
 	}
-	
+
     public BlockDescriptor set(String descriptor)
     {
         this.clear();
@@ -125,7 +124,7 @@ public class BlockDescriptor implements Copyable<BlockDescriptor>
     public BlockDescriptor add(String descriptor, float weight, NBTTagCompound nbt) {
     	return this.add(descriptor, weight, false, false, false, nbt);
     }
-    
+
     public BlockDescriptor add(String descriptor, float weight, boolean describesOre, boolean matchFirst, boolean regexp, NBTTagCompound nbt)
     {
         if (descriptor != null && weight != 0.0F)
@@ -152,7 +151,7 @@ public class BlockDescriptor implements Copyable<BlockDescriptor>
     private void add(Block block, int metadata, NBTTagCompound nbt, float weight)
     {
     	if (nbt != null && !block.hasTileEntity(metadata)) {
-    		throw new IllegalArgumentException("NBT specified, but matching block " + 
+    		throw new IllegalArgumentException("NBT specified, but matching block " +
     				block.getUnlocalizedName() + ":" + metadata + " lacks tile entity");
     	}
         if (weight != 0.0F)
@@ -163,7 +162,7 @@ public class BlockDescriptor implements Copyable<BlockDescriptor>
             if (match != null)
             {
                 match = new Match(match.weight + weight);
-            } else 
+            } else
             {
             	match = new Match(weight);
             }
@@ -198,7 +197,7 @@ public class BlockDescriptor implements Copyable<BlockDescriptor>
             this._compiled = true;
             this._matches.clear();
             Arrays.fill(this._fastMatch, 0.0F);
-            
+
             for (Descriptor desc : this._descriptors) {
             	if (desc.describesOre) {
             		for (ItemStack ore : OreDictionary.getOres(desc.description)) {
@@ -215,14 +214,14 @@ public class BlockDescriptor implements Copyable<BlockDescriptor>
             					}
             				}
             				// FIXME: Blocks tend to be registered as meta 0, even when the meta is irrelevant,
-            				// so we are unable to take advantage of the fast ID hash. 
+            				// so we are unable to take advantage of the fast ID hash.
             				// This is particularly true of vanilla 'stone'.
             				this.add(oreBlock, meta, nbt, desc.weight);
             			}
             			if (desc.matchFirst) {
             				break;
             			}
-            		}            		
+            		}
             	} else if (desc.regexp) {
             		@SuppressWarnings("unchecked")
 					Iterable<Block> blocks = (Iterable<Block>)GameData.getBlockRegistry();
@@ -250,7 +249,7 @@ public class BlockDescriptor implements Copyable<BlockDescriptor>
             		if (block != null)
             		  this.add(block, desc.getMeta(), desc.nbt, desc.weight);
             	}
-            }   
+            }
         }
     }
 
@@ -324,16 +323,16 @@ public class BlockDescriptor implements Copyable<BlockDescriptor>
     {
         this.compileMatches();
         float value = -1.0F;
-        
+
         for (Entry<BlockInfo,Match> entry : _matches.entrySet()) {
         	float weight = entry.getValue().weight;
             BlockInfo info = entry.getKey();
-            
+
             if (info.getMetadata() == OreDictionary.WILDCARD_VALUE)
             {
                 info = new BlockInfo(info.getBlock(), 0, info.getNBT());
             }
-			
+
             if (weight > 0.0F)
             {
                 if (weight >= 1.0F)
@@ -367,7 +366,7 @@ public class BlockDescriptor implements Copyable<BlockDescriptor>
     {
         this.compileMatches();
         float weight = 0.0F;
-        
+
         for (Match m : _matches.values()) {
         	if (m.weight > 0.0F)
             {
@@ -410,22 +409,22 @@ public class BlockDescriptor implements Copyable<BlockDescriptor>
         	float weight = entry.getValue().weight;
             int metaData = entry.getKey().getMetadata();
             Block block = entry.getKey().getBlock();
-            
+
             breakdown[i] = Block.blockRegistry.getNameForObject(block);
-            
+
             if (metaData != OreDictionary.WILDCARD_VALUE)
             {
                 breakdown[i] += ":" + metaData;
             }
 
             breakdown[i] += " (" + weight + ")";
-            
+
             ++i;
         }
 
         return breakdown;
     }
-    
+
     private class Descriptor
     {
         public final String description;
@@ -435,7 +434,7 @@ public class BlockDescriptor implements Copyable<BlockDescriptor>
         public final boolean regexp;
         public final NBTTagCompound nbt;
         private Pattern pattern = null;
-        
+
         public Descriptor(String description, float weight, boolean describesOre, boolean matchFirst, boolean regexp, NBTTagCompound nbt)
         {
             this.description = description;
@@ -455,7 +454,7 @@ public class BlockDescriptor implements Copyable<BlockDescriptor>
 
             return this.pattern;
         }
-        
+
         public String getBlockName() {
         	boolean hasMeta = this.description.indexOf(':') != this.description.lastIndexOf(':');
         	if (hasMeta) {
@@ -464,7 +463,7 @@ public class BlockDescriptor implements Copyable<BlockDescriptor>
         		return this.description;
         	}
         }
-        
+
         public int getMeta() {
         	boolean hasMeta = this.getBlockName().length() < this.description.length();
         	if (hasMeta) {
@@ -477,7 +476,7 @@ public class BlockDescriptor implements Copyable<BlockDescriptor>
         public float[] regexMatch(String name)
         {
             float[] weights = new float[Short.SIZE + 1];
-            
+
             if (!this.getPattern().matcher(name).matches())
             {
             	for (int m = 0; m < Short.SIZE; ++m)
@@ -494,7 +493,7 @@ public class BlockDescriptor implements Copyable<BlockDescriptor>
             }
             return weights;
         }
-        
+
         public String toString()
         {
             return this.description + " - " + Float.toString(this.weight);

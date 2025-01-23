@@ -1,15 +1,14 @@
 package CustomOreGen.Util;
 
-import java.util.Random;
-
 import CustomOreGen.Server.DistributionSettingMap.Copyable;
+import java.util.Random;
 
 public class PDist implements Copyable<PDist>
 {
     public float mean;
     public float range;
     public Type type;
-        
+
     public enum Type
     {
         uniform,
@@ -111,7 +110,7 @@ public class PDist implements Copyable<PDist>
 
     private float inverseGaussian(double mu, double lambda, Random rand) {
     	/*Function taken from Wikipedia article on Inverse Gaussian Distribution*/
-    	
+
     	double v = rand.nextGaussian();   // sample from a normal distribution with a mean of 0 and 1 standard deviation
     	v *= v;
     	double x = mu + (mu*mu*v)/(2*lambda) - (mu/(2*lambda)) * Math.sqrt(4*mu*lambda*v + mu*mu*v*v);
@@ -121,7 +120,7 @@ public class PDist implements Copyable<PDist>
     		return (float)((mu*mu)/x);
     }
 
-    
+
     public int getIntValue(Random rand)
     {
         float fval = this.getValue(rand);
@@ -147,7 +146,7 @@ public class PDist implements Copyable<PDist>
     public float standardize(float x) {
     	return (x - this.mean) / this.range;
     }
-    
+
     public float cdf(float x) {
     	switch (this.type)
         {
@@ -157,26 +156,26 @@ public class PDist implements Copyable<PDist>
             case normal:
             	float z = standardize(x);
                 return (float)(1/(1 + Math.exp(-0.07056 * Math.pow(z, 3) - 1.5976 * z)));
-                
+
             case inverse:
             case inverseAbs:
 			float m = (float)Math.sqrt(1/x);
             	//taken from Wolfram Alpha "graph cumulative wald distribution mean 1 scale 0.2"
             	return 0.5f*erfc(0.316228f*(1-x)*m) + 0.745912f*erfc(0.316228f*(1+x)*m);
-            	
+
             default:
                 return 0.0F;
         }
     }
-    
+
     /*
      * complementary error function, defined as 1-erf(x)
-     * erf(x) is defined as pi^(-0.5) * gamma(0.5, x^2)  
+     * erf(x) is defined as pi^(-0.5) * gamma(0.5, x^2)
      */
     private float erfc(float x) {
     	return 1 - (0.56418f*(float)GammaFunction.incompleteGammaP(0.5,x*x));
     }
-    
+
 	public String toString()
     {
         return String.format("%f +- %f %s", new Object[] {Float.valueOf(this.mean), Float.valueOf(this.range), this.type.name()});

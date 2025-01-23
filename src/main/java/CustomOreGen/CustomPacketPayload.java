@@ -1,7 +1,9 @@
 package CustomOreGen;
 
+import cpw.mods.fml.common.network.FMLEventChannel;
+import cpw.mods.fml.common.network.NetworkRegistry;
+import cpw.mods.fml.common.network.internal.FMLProxyPacket;
 import static io.netty.buffer.Unpooled.wrappedBuffer;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -17,11 +19,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.zip.Deflater;
 import java.util.zip.DeflaterOutputStream;
 import java.util.zip.InflaterInputStream;
-
 import net.minecraft.entity.player.EntityPlayerMP;
-import cpw.mods.fml.common.network.FMLEventChannel;
-import cpw.mods.fml.common.network.NetworkRegistry;
-import cpw.mods.fml.common.network.internal.FMLProxyPacket;
 
 public class CustomPacketPayload
 {
@@ -32,8 +30,8 @@ public class CustomPacketPayload
     private static AtomicInteger _xpacketNextID = new AtomicInteger(0);
     private static final String CHANNEL_NAME = "CustomOreGen";
     private static final String XCHANNEL_NAME = "CustomOreGenX";
-    
-    
+
+
     public CustomPacketPayload(PayloadType type, Serializable data)
     {
         this.type = type;
@@ -195,13 +193,13 @@ public class CustomPacketPayload
     	registerChannel(mod, CHANNEL_NAME);
     	registerChannel(mod, XCHANNEL_NAME);
     }
-    
+
     private static void registerChannel(Object mod, String name) {
     	FMLEventChannel channel = NetworkRegistry.INSTANCE.newEventDrivenChannel(name);
         channels.put(name, channel);
         channel.register(mod);
     }
-        
+
     private class AutoCompressionStream extends OutputStream
     {
         private int compressionThreshold;
@@ -266,7 +264,7 @@ public class CustomPacketPayload
             return this.backingStream.toByteArray();
         }
     }
-    
+
     public enum PayloadType
     {
         DebuggingGeometryRequest,
@@ -276,7 +274,7 @@ public class CustomPacketPayload
         MystcraftSymbolData,
         CommandResponse;
     }
-    
+
     private static class TranslatingObjectInputStream extends ObjectInputStream
     {
         public TranslatingObjectInputStream(InputStream in) throws IOException

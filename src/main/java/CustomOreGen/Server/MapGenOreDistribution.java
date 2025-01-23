@@ -1,24 +1,5 @@
 package CustomOreGen.Server;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-
-import net.minecraft.block.Block;
-import net.minecraft.init.Blocks;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.MathHelper;
-import net.minecraft.world.ChunkCoordIntPair;
-import net.minecraft.world.ChunkPosition;
-import net.minecraft.world.World;
-import net.minecraft.world.biome.BiomeGenBase;
-import net.minecraft.world.chunk.IChunkProvider;
-import net.minecraft.world.gen.structure.MapGenStructure;
-import net.minecraft.world.gen.structure.StructureBoundingBox;
-import net.minecraft.world.gen.structure.StructureComponent;
-import net.minecraft.world.gen.structure.StructureStart;
 import CustomOreGen.Server.DistributionSettingMap.DistributionSetting;
 import CustomOreGen.Util.BiomeDescriptor;
 import CustomOreGen.Util.BlockArrangement;
@@ -32,6 +13,24 @@ import CustomOreGen.Util.PDist.Type;
 import CustomOreGen.Util.TileEntityHelper;
 import CustomOreGen.Util.Transform;
 import CustomOreGen.Util.WireframeShapes;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import net.minecraft.block.Block;
+import net.minecraft.init.Blocks;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.MathHelper;
+import net.minecraft.world.ChunkCoordIntPair;
+import net.minecraft.world.ChunkPosition;
+import net.minecraft.world.World;
+import net.minecraft.world.biome.BiomeGenBase;
+import net.minecraft.world.chunk.IChunkProvider;
+import net.minecraft.world.gen.structure.MapGenStructure;
+import net.minecraft.world.gen.structure.StructureBoundingBox;
+import net.minecraft.world.gen.structure.StructureComponent;
+import net.minecraft.world.gen.structure.StructureStart;
 
 public abstract class MapGenOreDistribution extends MapGenStructure implements IOreDistribution
 {
@@ -41,147 +40,147 @@ public abstract class MapGenOreDistribution extends MapGenStructure implements I
             info = "Descriptive distribution name."
     )
     public String name;
-    
+
     @DistributionSetting(
             name = "DisplayName",
             inherited = false,
             info = "Distribution name for display in user interfaces."
     )
     public String displayName;
-    
+
     @DistributionSetting(
             name = "Seed",
             inherited = false,
             info = "Distribution random number seed."
     )
     public long seed;
-    
+
     @DistributionSetting(
             name = "OreBlock",
             info = "Ore block(s) - total weight must not be more than 100%"
     )
     public final BlockDescriptor oreBlock = new BlockDescriptor();
-    
+
     @DistributionSetting(
             name = "Replaces",
             info = "List of replaceable blocks"
     )
     public final BlockDescriptor replaceableBlocks;
-    
+
     @DistributionSetting(
             name = "PlacesAbove",
             info = "List of blocks allowed below generated block"
     )
     public final BlockDescriptor belowBlocks;
-    
+
     @DistributionSetting(
             name = "PlacesBelow",
             info = "List of blocks allowed above generated block"
     )
     public final BlockDescriptor aboveBlocks;
-    
+
     @DistributionSetting(
             name = "PlacesBeside",
             info = "List of blocks allowed beside generated block"
     )
     public final BlockDescriptor besideBlocks;
-    
+
     @DistributionSetting(
             name = "TargetBiome",
             info = "List of valid target biomes"
     )
     public final BiomeDescriptor biomes;
-    
+
     @DistributionSetting(
             name = "DistributionFrequency",
             info = "Number of distribution structures per 16x16 chunk"
     )
     public final HeightScaledPDist frequency;
-    
+
     @DistributionSetting(
             name = "Parent",
             info = "The parent distribution, or null if no parent"
     )
     public MapGenOreDistribution parent;
-    
+
     @DistributionSetting(
             name = "ParentRangeLimit",
             info = "Max horizontal distance to a parent distribution, in meters"
     )
     public final PDist parentRangeLimit;
-    
+
     @DistributionSetting(
             name = "MinHeight",
             info = "Minimum absolute height allowed"
     )
     public int minHeight;
-    
+
     @DistributionSetting(
             name = "MaxHeight",
             info = "Maximum absolute height allowed"
     )
     public int maxHeight;
-    
+
     @DistributionSetting(
             name = "HeightOffset",
             info = "Number, in blocks, to add to the scaled height"
     )
     public PDist heightOffset;
-    
+
     @DistributionSetting(
             name = "drawBoundBox",
             info = "Whether bounding boxes are drawn for components"
     )
     public boolean wfHasBB;
-    
+
     @DistributionSetting(
             name = "boundBoxColor",
             info = "Color of bounding boxes for components"
     )
     public long wfBBColor;
-    
+
     @DistributionSetting(
             name = "drawWireframe",
             info = "Whether wireframes are drawn for components"
     )
     public boolean wfHasWireframe;
-    
+
     @DistributionSetting(
             name = "wireframeColor",
             info = "Color of wireframes for components"
     )
     public long wfWireframeColor;
-    
+
     @DistributionSetting(
             name = "completedStructures",
             info = "Structures completed during current game session."
     )
     public int completedStructures;
-    
+
     @DistributionSetting(
             name = "completedStructureBlocks",
             info = "Blocks placed in structures completed during current game session."
     )
     public long completedStructureBlocks;
-    
+
     @DistributionSetting(
             name = "populatedChunks",
             info = "Chunks populated during current game session."
     )
     public int populatedChunks;
-    
+
     @DistributionSetting(
             name = "placedBlocks",
             info = "Blocks placed during current game session."
     )
     public long placedBlocks;
-    
+
     @DistributionSetting(
             name = "version",
             info = "Version of the distribution configuration."
     )
     public long version;
-    
+
     protected Map<Long,GeometryStream> debuggingGeometryMap;
     protected boolean _valid;
     protected final boolean _canGenerate;
@@ -321,9 +320,9 @@ public abstract class MapGenOreDistribution extends MapGenStructure implements I
             this.completedStructureBlocks = this.placedBlocks = 0L;
         }
     }
-    
+
     public abstract double getAverageOreCount();
-    
+
     @Override
 	public double getOresPerChunk() {
 		return this.frequency.pdist.mean * getAverageOreCount();
@@ -382,7 +381,7 @@ public abstract class MapGenOreDistribution extends MapGenStructure implements I
         {
             ;
         }
-        
+
         if (this.minHeight > this.maxHeight)
         {
             this._valid = false;
@@ -436,8 +435,8 @@ public abstract class MapGenOreDistribution extends MapGenStructure implements I
         return group;
     }
 
-    // FIXME: copy-and-pasted this from MapGenBase, because MapGenStructure now declares recursiveGenerate as 'final'. 
-    // We worked around this by renaming to recursiveGenerate2, which is called by this method. 
+    // FIXME: copy-and-pasted this from MapGenBase, because MapGenStructure now declares recursiveGenerate as 'final'.
+    // We worked around this by renaming to recursiveGenerate2, which is called by this method.
     @Override
     public void func_151539_a(IChunkProvider par1IChunkProvider, World par2World, int par3, int par4, Block[] chunkBlocks)
     {
@@ -458,7 +457,7 @@ public abstract class MapGenOreDistribution extends MapGenStructure implements I
             }
         }
     }
-    
+
     @SuppressWarnings("unchecked")
 	protected void recursiveGenerate2(World world, int chunkX, int chunkZ, int rootX, int rootZ, Block[] chunkBlocks)
     {
@@ -494,7 +493,7 @@ public abstract class MapGenOreDistribution extends MapGenStructure implements I
     	boolean canSpawn = false;
         if (this._canGenerate && this._valid) {
         	if (this.frequency.getMax(this.worldObj, blockX, blockZ) >= 1.0F) {
-        		canSpawn = true; 
+        		canSpawn = true;
         	} else {
         		canSpawn = this.frequency.getIntValue(super.rand, this.worldObj, blockX, blockZ) == 1;
         	}
@@ -506,7 +505,7 @@ public abstract class MapGenOreDistribution extends MapGenStructure implements I
     {
     	int blockX = chunkX << 4;
     	int blockZ = chunkZ << 4;
-        int count = this.frequency.getMax(this.worldObj, blockX, blockZ) >= 1.0F ? 
+        int count = this.frequency.getMax(this.worldObj, blockX, blockZ) >= 1.0F ?
         		this.frequency.getIntValue(super.rand, this.worldObj, blockX, blockZ) : 1;
         StructureGroup group = new StructureGroup(chunkX, chunkZ, count);
         group.newerGroup = null;
@@ -589,7 +588,7 @@ public abstract class MapGenOreDistribution extends MapGenStructure implements I
                     }
                 }
             }
-            
+
             return minPos;
         }
         else
@@ -679,7 +678,7 @@ public abstract class MapGenOreDistribution extends MapGenStructure implements I
             		return false;
             	}
             }
-            
+
             if (componentType == 0)
             {
                 float dist1 = parentRangeLimit.getValue(random);
@@ -744,7 +743,7 @@ public abstract class MapGenOreDistribution extends MapGenStructure implements I
             }
         }
     }
-    
+
     public class Component extends StructureComponent
     {
         public final StructureGroup structureGroup;
@@ -882,14 +881,14 @@ public abstract class MapGenOreDistribution extends MapGenStructure implements I
 		@Override
 		protected void func_143012_a(NBTTagCompound nbttagcompound) {
 			// TODO Auto-generated method stub
-			
+
 		}
 
 		/* For parsing an NBT tag representing this component */
 		@Override
 		protected void func_143011_b(NBTTagCompound nbttagcompound) {
 			// TODO Auto-generated method stub
-			
+
 		}
     }
 

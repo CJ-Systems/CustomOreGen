@@ -15,7 +15,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import javax.swing.BoxLayout;
-
 import org.lwjgl.LWJGLUtil;
 import org.lwjgl.opengl.Display;
 

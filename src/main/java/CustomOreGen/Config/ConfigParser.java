@@ -1,28 +1,5 @@
 package CustomOreGen.Config;
 
-import java.io.File;
-import java.io.IOException;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Random;
-import java.util.Vector;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
-
-import net.minecraftforge.oredict.OreDictionary;
-
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-import org.w3c.dom.UserDataHandler;
-import org.xml.sax.SAXException;
-
 import CustomOreGen.Config.ValidatorNode.IValidatorFactory;
 import CustomOreGen.Server.ChoiceOption;
 import CustomOreGen.Server.ConfigOption;
@@ -38,6 +15,25 @@ import CustomOreGen.Util.BiomeDescriptor;
 import CustomOreGen.Util.BlockDescriptor;
 import CustomOreGen.Util.CIStringMap;
 import cpw.mods.fml.common.Loader;
+import java.io.File;
+import java.io.IOException;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Random;
+import java.util.Vector;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
+import net.minecraftforge.oredict.OreDictionary;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.UserDataHandler;
+import org.xml.sax.SAXException;
 
 public class ConfigParser
 {
@@ -46,7 +42,7 @@ public class ConfigParser
     protected Random rng = null;
     protected final DocumentBuilder domBuilder;
     protected final SAXParser saxParser;
-    private static final Map<String,IValidatorFactory<ValidatorDistribution>> distributionValidators = 
+    private static final Map<String,IValidatorFactory<ValidatorDistribution>> distributionValidators =
     		new HashMap<String,IValidatorFactory<ValidatorDistribution>>();
 
     public static boolean blockExists(String blockDescription)
@@ -63,7 +59,7 @@ public class ConfigParser
     {
     	return OreDictionary.getOres(oreDescription).size() > 0;
     }
-    
+
     public float nextRandom()
     {
         return this.rng == null ? 0.0F : this.rng.nextFloat();
@@ -114,12 +110,12 @@ public class ConfigParser
         topLevelNodes.add("MystcraftSymbol");
         validator.addGlobalValidator(Node.ELEMENT_NODE, "MystcraftSymbol", new ValidatorMystcraftSymbol.Factory());
         validator.addGlobalValidator(Node.ELEMENT_NODE, "BiomeSet", new ValidatorBiomeSet.Factory());
-        
+
         for (Entry<String,IValidatorFactory<ValidatorDistribution>> entry : distributionValidators.entrySet()) {
         	validator.addGlobalValidator(Node.ELEMENT_NODE, entry.getKey(), entry.getValue());
             topLevelNodes.add(entry.getKey());
         }
-        
+
         validator.addGlobalValidator(Node.ELEMENT_NODE, "Config", new ValidatorRoot.Factory(topLevelNodes));
 
         if (this.target.worldInfo == null)
@@ -312,7 +308,7 @@ public class ConfigParser
         addDistributionType("Substitute", WorldGenSubstitution.class, true);
         addDistributionType("SubstitutePreset", WorldGenSubstitution.class, false);
     }
-    
+
     public class ConfigExpressionEvaluator extends ExpressionEvaluator
     {
         private CIStringMap<Object> localIdentifiers;

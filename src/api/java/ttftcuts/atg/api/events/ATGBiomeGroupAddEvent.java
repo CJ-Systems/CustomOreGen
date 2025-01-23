@@ -1,12 +1,12 @@
 package ttftcuts.atg.api.events;
 
-import ttftcuts.atg.api.ATGBiomes.BiomeType;
 import cpw.mods.fml.common.eventhandler.Event;
+import ttftcuts.atg.api.ATGBiomes.BiomeType;
 
 public class ATGBiomeGroupAddEvent extends Event {
 
 	public static enum ResponseType { NONE, OK, FAILED };
-	
+
 	public BiomeType type;
 	public ResponseType response;
 	public String name;

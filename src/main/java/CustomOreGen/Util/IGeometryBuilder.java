@@ -1,8 +1,7 @@
 package CustomOreGen.Util;
 
+public interface IGeometryBuilder {
 
-public interface IGeometryBuilder
-{
     void setPositionTransform(Transform transform);
 
     void setNormal(float[] normal);
@@ -15,16 +14,15 @@ public interface IGeometryBuilder
 
     void setTextureCoordinates(float[] texcoords);
 
-    void setVertexMode(PrimitiveType primitive, int ... vertexIndices);
+    void setVertexMode(PrimitiveType primitive, int... vertexIndices);
 
     void addVertex(float[] pos);
 
     void addVertex(float[] pos, float[] normal, float[] color, float[] texcoords);
 
     void addVertexRef(int vertexIndex);
-    
-    public enum PrimitiveType
-    {
+
+    public enum PrimitiveType {
         POINT,
         LINE,
         TRIANGLE,

@@ -1,14 +1,5 @@
 package CustomOreGen.Server;
 
-import CustomOreGen.Config.ConfigParser;
-import CustomOreGen.Config.PropertyIO;
-import CustomOreGen.CustomOreGenBase;
-import CustomOreGen.ForgeInterface;
-import CustomOreGen.Util.BiomeDescriptor;
-import CustomOreGen.Util.BlockDescriptor;
-import CustomOreGen.Util.CIStringMap;
-import CustomOreGen.Util.MapCollection;
-import com.google.common.collect.Maps;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -21,7 +12,9 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 import javax.xml.parsers.ParserConfigurationException;
+
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.IChunkProvider;
 import net.minecraft.world.gen.ChunkProviderEnd;
@@ -30,12 +23,24 @@ import net.minecraft.world.gen.ChunkProviderGenerate;
 import net.minecraft.world.gen.ChunkProviderHell;
 import net.minecraft.world.storage.SaveHandler;
 import net.minecraft.world.storage.WorldInfo;
+
 import org.xml.sax.SAXException;
 
-public class WorldConfig
-{
-	@SuppressWarnings("unchecked")
-	public static Collection<ConfigOption>[] loadedOptionOverrides = new Collection[3];
+import com.google.common.collect.Maps;
+
+import CustomOreGen.Config.ConfigParser;
+import CustomOreGen.Config.PropertyIO;
+import CustomOreGen.CustomOreGenBase;
+import CustomOreGen.ForgeInterface;
+import CustomOreGen.Util.BiomeDescriptor;
+import CustomOreGen.Util.BlockDescriptor;
+import CustomOreGen.Util.CIStringMap;
+import CustomOreGen.Util.MapCollection;
+
+public class WorldConfig {
+
+    @SuppressWarnings("unchecked")
+    public static Collection<ConfigOption>[] loadedOptionOverrides = new Collection[3];
     public final World world;
     public final WorldInfo worldInfo;
     public final File globalConfigDir;
@@ -45,77 +50,63 @@ public class WorldConfig
     public boolean debuggingMode;
     public boolean vanillaOreGen;
     public boolean custom;
-    private Map<String,IOreDistribution> oreDistributions;
-    private Map<String,ConfigOption> configOptions;
-    private Map<String,String> loadedOptions;
-    private Map<String,Object> worldProperties;
-    private Map<String,BiomeDescriptor> biomeSets;
-	private BlockDescriptor equivalentBlockDescriptor;
-	private int idCounter;
+    private Map<String, IOreDistribution> oreDistributions;
+    private Map<String, ConfigOption> configOptions;
+    private Map<String, String> loadedOptions;
+    private Map<String, Object> worldProperties;
+    private Map<String, BiomeDescriptor> biomeSets;
+    private BlockDescriptor equivalentBlockDescriptor;
+    private int idCounter;
 
-    public static WorldConfig createEmptyConfig()
-    {
-        try
-        {
-            return new WorldConfig((File)null, (WorldInfo)null, (File)null, (World)null, (File)null);
-        }
-        catch (Exception var1)
-        {
+    public static WorldConfig createEmptyConfig() {
+        try {
+            return new WorldConfig((File) null, (WorldInfo) null, (File) null, (World) null, (File) null);
+        } catch (Exception var1) {
             throw new RuntimeException(var1);
         }
     }
 
-    public WorldConfig() throws IOException, ParserConfigurationException, SAXException
-    {
-        this(CustomOreGenBase.getConfigDir(), (WorldInfo)null, (File)null, (World)null, (File)null);
+    public WorldConfig() throws IOException, ParserConfigurationException, SAXException {
+        this(CustomOreGenBase.getConfigDir(), (WorldInfo) null, (File) null, (World) null, (File) null);
     }
 
-    public WorldConfig(WorldInfo worldInfo, File worldBaseDir) throws IOException, ParserConfigurationException, SAXException
-    {
-        this(CustomOreGenBase.getConfigDir(), worldInfo, worldBaseDir, (World)null, (File)null);
+    public WorldConfig(WorldInfo worldInfo, File worldBaseDir)
+        throws IOException, ParserConfigurationException, SAXException {
+        this(CustomOreGenBase.getConfigDir(), worldInfo, worldBaseDir, (World) null, (File) null);
     }
 
-    public WorldConfig(World world) throws IOException, ParserConfigurationException, SAXException
-    {
-        this(CustomOreGenBase.getConfigDir(), (WorldInfo)null, (File)null, world, (File)null);
+    public WorldConfig(World world) throws IOException, ParserConfigurationException, SAXException {
+        this(CustomOreGenBase.getConfigDir(), (WorldInfo) null, (File) null, world, (File) null);
     }
 
-    private WorldConfig(File globalConfigDir, WorldInfo worldInfo, File worldBaseDir, World world, File dimensionDir) throws IOException, ParserConfigurationException, SAXException
-    {
+    private WorldConfig(File globalConfigDir, WorldInfo worldInfo, File worldBaseDir, World world, File dimensionDir)
+        throws IOException, ParserConfigurationException, SAXException {
         this.deferredPopulationRange = 0;
         this.debuggingMode = false;
         this.vanillaOreGen = false;
-        this.oreDistributions = new LinkedHashMap<String,IOreDistribution>();
+        this.oreDistributions = new LinkedHashMap<String, IOreDistribution>();
         this.configOptions = new CIStringMap<ConfigOption>(new LinkedHashMap<String, ConfigOption>());
         this.loadedOptions = new CIStringMap<String>(new LinkedHashMap<String, String>());
         this.worldProperties = new CIStringMap<Object>(new LinkedHashMap<String, Object>());
         this.biomeSets = new CIStringMap<BiomeDescriptor>();
         String dimensionBasename;
 
-        if (world != null)
-        {
-            if (world.getSaveHandler() != null && world.getSaveHandler() instanceof SaveHandler)
-            {
-                worldBaseDir = ((SaveHandler)world.getSaveHandler()).getWorldDirectory();
-            }
-            else
-            {
+        if (world != null) {
+            if (world.getSaveHandler() != null && world.getSaveHandler() instanceof SaveHandler) {
+                worldBaseDir = ((SaveHandler) world.getSaveHandler()).getWorldDirectory();
+            } else {
                 worldBaseDir = null;
             }
 
             dimensionBasename = "DIM" + world.provider.dimensionId;
 
-            if (world.provider.dimensionId != 0)
-            {
-            	dimensionBasename = ForgeInterface.getWorldDimensionFolder(world);
+            if (world.provider.dimensionId != 0) {
+                dimensionBasename = ForgeInterface.getWorldDimensionFolder(world);
             }
 
-            if (worldBaseDir == null)
-            {
+            if (worldBaseDir == null) {
                 dimensionDir = new File(dimensionBasename);
-            }
-            else
-            {
+            } else {
                 dimensionDir = new File(worldBaseDir, dimensionBasename);
             }
 
@@ -123,9 +114,8 @@ public class WorldConfig
         }
 
         if (dimensionDir == null && worldBaseDir != null) {
-        	dimensionDir = new File(worldBaseDir, "DIM0");
-            if (!dimensionDir.exists())
-            	dimensionDir.mkdir();
+            dimensionDir = new File(worldBaseDir, "DIM0");
+            if (!dimensionDir.exists()) dimensionDir.mkdir();
         }
 
         this.world = world;
@@ -135,14 +125,10 @@ public class WorldConfig
         this.dimensionDir = dimensionDir;
         this.globalConfigDir = globalConfigDir;
 
-        if (dimensionDir != null)
-        {
+        if (dimensionDir != null) {
             CustomOreGenBase.log.info("Loading config data for dimension \'" + dimensionDir + "\' ...");
-        }
-        else
-        {
-            if (globalConfigDir == null)
-            {
+        } else {
+            if (globalConfigDir == null) {
                 return;
             }
 
@@ -153,29 +139,21 @@ public class WorldConfig
         File[] configFileList = new File[3];
         int configFileDepth = this.buildFileList(CustomOreGenBase.BASE_CONFIG_FILENAME, configFileList, true);
 
-        if (configFileDepth >= 0)
-        {
-        	configFile = configFileList[configFileDepth];
-        }
-        else
-        {
-        	File defaultConfigFile = new File(globalConfigDir, CustomOreGenBase.DEFAULT_BASE_CONFIG_FILENAME);
-        	if (defaultConfigFile.exists())
-        	{
-        		configFile = defaultConfigFile;
-        		configFileDepth = 0;
-        	}
-        	else
-        	{
-        		if (dimensionDir != null)
-        		{
-        			CustomOreGenBase.log.warn("No config file found for dimension \'" + dimensionDir + "\' at any scope!");
-        		}
-        		else
-        		{
-        			CustomOreGenBase.log.info("No global config file found.");
-        		}
-        	}
+        if (configFileDepth >= 0) {
+            configFile = configFileList[configFileDepth];
+        } else {
+            File defaultConfigFile = new File(globalConfigDir, CustomOreGenBase.DEFAULT_BASE_CONFIG_FILENAME);
+            if (defaultConfigFile.exists()) {
+                configFile = defaultConfigFile;
+                configFileDepth = 0;
+            } else {
+                if (dimensionDir != null) {
+                    CustomOreGenBase.log
+                        .warn("No config file found for dimension \'" + dimensionDir + "\' at any scope!");
+                } else {
+                    CustomOreGenBase.log.info("No global config file found.");
+                }
+            }
         }
 
         if (configFile != null) {
@@ -184,130 +162,132 @@ public class WorldConfig
             File optionsFile = optionsFileList[2];
             ConfigOption vangen;
 
-            for (int defpopOption = configFileDepth; defpopOption < optionsFileList.length; ++defpopOption)
-            {
+            for (int defpopOption = configFileDepth; defpopOption < optionsFileList.length; ++defpopOption) {
                 loadOptions(optionsFileList[defpopOption], loadedOptionOverrides[defpopOption], this.loadedOptions);
             }
 
             (new ConfigParser(this)).parseFile(configFile);
             ConfigOption option;
 
-            Map<String,String> saveLevelOptions = new LinkedHashMap<String, String>();
+            Map<String, String> saveLevelOptions = new LinkedHashMap<String, String>();
             if (optionsFileList[1] != null) {
-            	if (!optionsFileList[1].exists()) {
-            		loadOptions(optionsFileList[0], loadedOptionOverrides[0], saveLevelOptions);
-            		saveOptions(optionsFileList[1], saveLevelOptions);
-            		loadedOptionOverrides[0] = null;
-            	} else {
-            		loadOptions(optionsFileList[1], null, saveLevelOptions);
-            	}
+                if (!optionsFileList[1].exists()) {
+                    loadOptions(optionsFileList[0], loadedOptionOverrides[0], saveLevelOptions);
+                    saveOptions(optionsFileList[1], saveLevelOptions);
+                    loadedOptionOverrides[0] = null;
+                } else {
+                    loadOptions(optionsFileList[1], null, saveLevelOptions);
+                }
             }
 
-            if (optionsFile != null)
-            {
-            	putOptions(this.configOptions.values(), this.loadedOptions);
-            	if (world != null) {
-            		Map<String,String> dimLevelOptions = setdiffOptions(this.loadedOptions, saveLevelOptions);
-            		loadOptions(optionsFile, loadedOptionOverrides[2], dimLevelOptions);
-            		saveOptions(optionsFile, dimLevelOptions);
-            	}
+            if (optionsFile != null) {
+                putOptions(this.configOptions.values(), this.loadedOptions);
+                if (world != null) {
+                    Map<String, String> dimLevelOptions = setdiffOptions(this.loadedOptions, saveLevelOptions);
+                    loadOptions(optionsFile, loadedOptionOverrides[2], dimLevelOptions);
+                    saveOptions(optionsFile, dimLevelOptions);
+                }
             }
 
-            option = (ConfigOption)this.configOptions.get("deferredPopulationRange");
+            option = (ConfigOption) this.configOptions.get("deferredPopulationRange");
 
-            if (option != null && option instanceof NumericOption)
-            {
-                Double var18 = (Double)option.getValue();
-                this.deferredPopulationRange = var18 != null && var18.doubleValue() > 0.0D ? (int)Math.ceil(var18.doubleValue()) : 0;
-            }
-            else
-            {
-                CustomOreGenBase.log.warn("Numeric Option \'" + option + "\' not found in config file - defaulting to \'" + this.deferredPopulationRange + "\'.");
-            }
-
-            option = (ConfigOption)this.configOptions.get("debugMode");
-
-            if (option != null && option instanceof ChoiceOption)
-            {
-                String debugValue = (String)option.getValue();
-                this.debuggingMode = debugValue == null ? false : debugValue.equalsIgnoreCase("on") || debugValue.equalsIgnoreCase("true");
-            }
-            else
-            {
-                CustomOreGenBase.log.warn("Choice Option \'" + option + "\' not found in config file - defaulting to \'" + this.debuggingMode + "\'.");
+            if (option != null && option instanceof NumericOption) {
+                Double var18 = (Double) option.getValue();
+                this.deferredPopulationRange = var18 != null && var18.doubleValue() > 0.0D
+                    ? (int) Math.ceil(var18.doubleValue())
+                    : 0;
+            } else {
+                CustomOreGenBase.log.warn(
+                    "Numeric Option \'" + option
+                        + "\' not found in config file - defaulting to \'"
+                        + this.deferredPopulationRange
+                        + "\'.");
             }
 
-            vangen = (ConfigOption)this.configOptions.get("vanillaOreGen");
+            option = (ConfigOption) this.configOptions.get("debugMode");
 
-            if (vangen != null && vangen instanceof ChoiceOption)
-            {
-                String value = (String)vangen.getValue();
-                this.vanillaOreGen = value == null ? false : value.equalsIgnoreCase("on") || value.equalsIgnoreCase("true");
+            if (option != null && option instanceof ChoiceOption) {
+                String debugValue = (String) option.getValue();
+                this.debuggingMode = debugValue == null ? false
+                    : debugValue.equalsIgnoreCase("on") || debugValue.equalsIgnoreCase("true");
+            } else {
+                CustomOreGenBase.log.warn(
+                    "Choice Option \'" + option
+                        + "\' not found in config file - defaulting to \'"
+                        + this.debuggingMode
+                        + "\'.");
             }
-            else
-            {
-                CustomOreGenBase.log.warn("Choice Option \'" + vangen + "\' not found in config file - defaulting to \'" + this.vanillaOreGen + "\'.");
+
+            vangen = (ConfigOption) this.configOptions.get("vanillaOreGen");
+
+            if (vangen != null && vangen instanceof ChoiceOption) {
+                String value = (String) vangen.getValue();
+                this.vanillaOreGen = value == null ? false
+                    : value.equalsIgnoreCase("on") || value.equalsIgnoreCase("true");
+            } else {
+                CustomOreGenBase.log.warn(
+                    "Choice Option \'" + vangen
+                        + "\' not found in config file - defaulting to \'"
+                        + this.vanillaOreGen
+                        + "\'.");
             }
 
         }
     }
 
-	private Map<String, String> setdiffOptions(Map<String, String> x, Map<String, String> y) {
-		return new LinkedHashMap<String, String>(Maps.difference(x, y).entriesOnlyOnLeft());
-	}
+    private Map<String, String> setdiffOptions(Map<String, String> x, Map<String, String> y) {
+        return new LinkedHashMap<String, String>(
+            Maps.difference(x, y)
+                .entriesOnlyOnLeft());
+    }
 
-	private void loadOptions(File file, Collection<ConfigOption> overrides, Map<String, String> map) throws FileNotFoundException, IOException {
-		if (file != null && file.exists())
-        {
+    private void loadOptions(File file, Collection<ConfigOption> overrides, Map<String, String> map)
+        throws FileNotFoundException, IOException {
+        if (file != null && file.exists()) {
             PropertyIO.load(map, new FileInputStream(file));
         }
 
-        if (overrides != null)
-        {
-        	putOptions(overrides, map);
+        if (overrides != null) {
+            putOptions(overrides, map);
         }
-	}
+    }
 
-	private void putOptions(Collection<ConfigOption> options, Map<String, String> map) {
-    	for (ConfigOption option : options) {
-    		if (option.getValue() != null) {
-    			map.put(option.getName(), option.getValue().toString());
-    		}
-    	}
-	}
+    private void putOptions(Collection<ConfigOption> options, Map<String, String> map) {
+        for (ConfigOption option : options) {
+            if (option.getValue() != null) {
+                map.put(
+                    option.getName(),
+                    option.getValue()
+                        .toString());
+            }
+        }
+    }
 
-	private void saveOptions(File optionsFile, Map<String, String> options) throws IOException {
-    	optionsFile.createNewFile();
+    private void saveOptions(File optionsFile, Map<String, String> options) throws IOException {
+        optionsFile.createNewFile();
         String header = CustomOreGenBase.getDisplayString() + " Config Options";
         PropertyIO.save(options, new FileOutputStream(optionsFile), header);
-	}
+    }
 
-	private int buildFileList(String fileName, File[] files, boolean mustExist)
-    {
-        if (files == null)
-        {
+    private int buildFileList(String fileName, File[] files, boolean mustExist) {
+        if (files == null) {
             files = new File[3];
         }
 
-        if (this.globalConfigDir != null)
-        {
+        if (this.globalConfigDir != null) {
             files[0] = new File(this.globalConfigDir, fileName);
         }
 
-        if (this.worldBaseDir != null)
-        {
+        if (this.worldBaseDir != null) {
             files[1] = new File(this.worldBaseDir, fileName);
         }
 
-        if (this.dimensionDir != null && dimensionDir.exists())
-        {
+        if (this.dimensionDir != null && dimensionDir.exists()) {
             files[2] = new File(this.dimensionDir, fileName);
         }
 
-        for (int i = files.length - 1; i >= 0; --i)
-        {
-            if (files[i] != null && (!mustExist || files[i].exists()))
-            {
+        for (int i = files.length - 1; i >= 0; --i) {
+            if (files[i] != null && (!mustExist || files[i].exists())) {
                 return i;
             }
         }
@@ -315,41 +295,49 @@ public class WorldConfig
         return -1;
     }
 
-    private static void populateWorldProperties(Map<String,Object> properties, World world, WorldInfo worldInfo)
-    {
+    private static void populateWorldProperties(Map<String, Object> properties, World world, WorldInfo worldInfo) {
         properties.put("world", worldInfo == null ? "" : worldInfo.getWorldName());
         properties.put("world.seed", worldInfo == null ? 0L : worldInfo.getSeed());
         properties.put("world.version", worldInfo == null ? 0 : worldInfo.getSaveVersion());
         properties.put("world.isHardcore", worldInfo == null ? false : worldInfo.isHardcoreModeEnabled());
         properties.put("world.hasFeatures", worldInfo == null ? false : worldInfo.isMapFeaturesEnabled());
         properties.put("world.hasCheats", worldInfo == null ? false : worldInfo.areCommandsAllowed());
-        properties.put("world.gameMode", worldInfo == null ? "" : worldInfo.getGameType().getName());
-        properties.put("world.gameMode.id", worldInfo == null ? 0 : worldInfo.getGameType().getID());
-        properties.put("world.type", worldInfo == null ? "" : worldInfo.getTerrainType().getWorldTypeName());
-        properties.put("world.type.version", worldInfo == null ? 0 : worldInfo.getTerrainType().getGeneratorVersion());
+        properties.put(
+            "world.gameMode",
+            worldInfo == null ? ""
+                : worldInfo.getGameType()
+                    .getName());
+        properties.put(
+            "world.gameMode.id",
+            worldInfo == null ? 0
+                : worldInfo.getGameType()
+                    .getID());
+        properties.put(
+            "world.type",
+            worldInfo == null ? ""
+                : worldInfo.getTerrainType()
+                    .getWorldTypeName());
+        properties.put(
+            "world.type.version",
+            worldInfo == null ? 0
+                : worldInfo.getTerrainType()
+                    .getGeneratorVersion());
         String genName = "RandomLevelSource";
         String genClass = "ChunkProviderGenerate";
 
-        if (world != null)
-        {
+        if (world != null) {
             IChunkProvider chunkProvider = world.provider.createChunkGenerator();
             genName = chunkProvider.makeString();
-            genClass = chunkProvider.getClass().getSimpleName();
+            genClass = chunkProvider.getClass()
+                .getSimpleName();
 
-            if (chunkProvider instanceof ChunkProviderGenerate)
-            {
+            if (chunkProvider instanceof ChunkProviderGenerate) {
                 genClass = "ChunkProviderGenerate";
-            }
-            else if (chunkProvider instanceof ChunkProviderFlat)
-            {
+            } else if (chunkProvider instanceof ChunkProviderFlat) {
                 genClass = "ChunkProviderFlat";
-            }
-            else if (chunkProvider instanceof ChunkProviderHell)
-            {
+            } else if (chunkProvider instanceof ChunkProviderHell) {
                 genClass = "ChunkProviderHell";
-            }
-            else if (chunkProvider instanceof ChunkProviderEnd)
-            {
+            } else if (chunkProvider instanceof ChunkProviderEnd) {
                 genName = "EndRandomLevelSource";
                 genClass = "ChunkProviderEnd";
             }
@@ -367,24 +355,20 @@ public class WorldConfig
         properties.put("age", false);
     }
 
-    public Collection<IOreDistribution> getOreDistributions()
-    {
+    public Collection<IOreDistribution> getOreDistributions() {
         return this.oreDistributions.values();
     }
 
-    public Collection<IOreDistribution> getOreDistributions(String namePattern)
-    {
+    public Collection<IOreDistribution> getOreDistributions(String namePattern) {
         LinkedList<IOreDistribution> matches = new LinkedList<IOreDistribution>();
 
-        if (namePattern != null)
-        {
+        if (namePattern != null) {
             Pattern pattern = Pattern.compile(namePattern, 2);
             Matcher matcher = pattern.matcher("");
             for (IOreDistribution dist : this.oreDistributions.values()) {
-            	matcher.reset(dist.toString());
+                matcher.reset(dist.toString());
 
-                if (matcher.matches())
-                {
+                if (matcher.matches()) {
                     matches.add(dist);
                 }
             }
@@ -393,34 +377,29 @@ public class WorldConfig
         return Collections.unmodifiableCollection(matches);
     }
 
-    public ConfigOption getConfigOption(String optionName)
-    {
+    public ConfigOption getConfigOption(String optionName) {
         return this.configOptions.get(optionName);
     }
 
-    public Collection<ConfigOption> getConfigOptions()
-    {
-    	return new MapCollection<String,ConfigOption>(this.configOptions) {
-     	    protected String getKey(ConfigOption v)
-    	    {
-    	        return v.getName();
-    	    }
-    	};
+    public Collection<ConfigOption> getConfigOptions() {
+        return new MapCollection<String, ConfigOption>(this.configOptions) {
+
+            protected String getKey(ConfigOption v) {
+                return v.getName();
+            }
+        };
     }
 
-    public Collection<ConfigOption> getConfigOptions(String namePattern)
-    {
+    public Collection<ConfigOption> getConfigOptions(String namePattern) {
         LinkedList<ConfigOption> matches = new LinkedList<ConfigOption>();
 
-        if (namePattern != null)
-        {
+        if (namePattern != null) {
             Pattern pattern = Pattern.compile(namePattern, 2);
             Matcher matcher = pattern.matcher("");
             for (ConfigOption option : this.configOptions.values()) {
-            	matcher.reset(option.getName());
+                matcher.reset(option.getName());
 
-                if (matcher.matches())
-                {
+                if (matcher.matches()) {
                     matches.add(option);
                 }
             }
@@ -429,52 +408,50 @@ public class WorldConfig
         return Collections.unmodifiableCollection(matches);
     }
 
-    public String loadConfigOption(String optionName)
-    {
-        return (String)this.loadedOptions.get(optionName);
+    public String loadConfigOption(String optionName) {
+        return (String) this.loadedOptions.get(optionName);
     }
 
-    public Object getWorldProperty(String propertyName)
-    {
+    public Object getWorldProperty(String propertyName) {
         return this.worldProperties.get(propertyName);
     }
 
-	public BiomeDescriptor getBiomeSet(String namePattern) {
+    public BiomeDescriptor getBiomeSet(String namePattern) {
         return this.biomeSets.get(namePattern);
-	}
+    }
 
-	public BlockDescriptor getEquivalentBlockDescriptor() {
-		if (this.equivalentBlockDescriptor == null) {
-			this.equivalentBlockDescriptor = this.makeEquivalentBlockDescriptor();
-		}
-		return this.equivalentBlockDescriptor;
-	}
+    public BlockDescriptor getEquivalentBlockDescriptor() {
+        if (this.equivalentBlockDescriptor == null) {
+            this.equivalentBlockDescriptor = this.makeEquivalentBlockDescriptor();
+        }
+        return this.equivalentBlockDescriptor;
+    }
 
-	private BlockDescriptor makeEquivalentBlockDescriptor() {
-		double totalWeight = 0;
-		for (IOreDistribution dist : this.oreDistributions.values()) {
-			totalWeight += dist.getOresPerChunk();
-		}
-		BlockDescriptor desc = new BlockDescriptor();
-		for (IOreDistribution dist : this.oreDistributions.values()) {
-			BlockDescriptor oreBlock = (BlockDescriptor)dist.getDistributionSetting("OreBlock");
-			desc.add(oreBlock, (float)(dist.getOresPerChunk() / totalWeight));
-		}
-		return desc;
-	}
+    private BlockDescriptor makeEquivalentBlockDescriptor() {
+        double totalWeight = 0;
+        for (IOreDistribution dist : this.oreDistributions.values()) {
+            totalWeight += dist.getOresPerChunk();
+        }
+        BlockDescriptor desc = new BlockDescriptor();
+        for (IOreDistribution dist : this.oreDistributions.values()) {
+            BlockDescriptor oreBlock = (BlockDescriptor) dist.getDistributionSetting("OreBlock");
+            desc.add(oreBlock, (float) (dist.getOresPerChunk() / totalWeight));
+        }
+        return desc;
+    }
 
-	public void registerDistribution(String newName, IOreDistribution distribution) {
-		if (this.oreDistributions.containsKey(newName)) {
-			this.oreDistributions.remove(newName); // otherwise, order is not updated
-		}
-		this.oreDistributions.put(newName, distribution);
-	}
+    public void registerDistribution(String newName, IOreDistribution distribution) {
+        if (this.oreDistributions.containsKey(newName)) {
+            this.oreDistributions.remove(newName); // otherwise, order is not updated
+        }
+        this.oreDistributions.put(newName, distribution);
+    }
 
-	public void registerBiomeSet(BiomeDescriptor biomeSet) {
-		this.biomeSets.put(biomeSet.getName(), biomeSet);
-	}
+    public void registerBiomeSet(BiomeDescriptor biomeSet) {
+        this.biomeSets.put(biomeSet.getName(), biomeSet);
+    }
 
-	public int nextDistributionID() {
-		return this.idCounter++;
-	}
+    public int nextDistributionID() {
+        return this.idCounter++;
+    }
 }

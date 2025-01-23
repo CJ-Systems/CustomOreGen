@@ -1,13 +1,16 @@
 package CustomOreGen.Util;
 
-import cpw.mods.fml.common.eventhandler.Cancelable;
 import java.util.Random;
+
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.terraingen.OreGenEvent;
 
+import cpw.mods.fml.common.eventhandler.Cancelable;
+
 public class CogOreGenEvent extends OreGenEvent {
-	/**
+
+    /**
      * CogOreGenEvent is fired just after a chunk is populated with ores by COG.<br>
      * This event is fired just after ore generation in
      * ServerState#onPopulateChunk().<br>

@@ -1,41 +1,35 @@
 package CustomOreGen.Util;
 
-public class Transform implements Cloneable
-{
+public class Transform implements Cloneable {
+
     private float[] mat;
 
-    public Transform()
-    {
-        this.mat = new float[] {1.0F, 0.0F, 0.0F, 0.0F, 0.0F, 1.0F, 0.0F, 0.0F, 0.0F, 0.0F, 1.0F, 0.0F, 0.0F, 0.0F, 0.0F, 1.0F};
+    public Transform() {
+        this.mat = new float[] { 1.0F, 0.0F, 0.0F, 0.0F, 0.0F, 1.0F, 0.0F, 0.0F, 0.0F, 0.0F, 1.0F, 0.0F, 0.0F, 0.0F,
+            0.0F, 1.0F };
     }
 
-    protected Transform(float[] matrix)
-    {
+    protected Transform(float[] matrix) {
         this.mat = matrix;
     }
 
-    public Transform clone()
-    {
-        return new Transform((float[])this.mat.clone());
+    public Transform clone() {
+        return new Transform((float[]) this.mat.clone());
     }
 
-    public float element(int row, int col)
-    {
+    public float element(int row, int col) {
         return this.mat[(row & 3) << 2 | col & 3];
     }
 
-    public void setElement(int row, int col, float value)
-    {
+    public void setElement(int row, int col, float value) {
         this.mat[(row & 3) << 2 | col & 3] = value;
     }
 
-    public float[] elements()
-    {
+    public float[] elements() {
         return this.mat;
     }
 
-    public Transform identity()
-    {
+    public Transform identity() {
         this.mat[0] = 1.0F;
         this.mat[1] = 0.0F;
         this.mat[2] = 0.0F;
@@ -55,14 +49,12 @@ public class Transform implements Cloneable
         return this;
     }
 
-    public Transform transform(Transform trans)
-    {
+    public Transform transform(Transform trans) {
         mult(this.mat, trans.mat);
         return this;
     }
 
-    public void transformVector(float[] vector)
-    {
+    public void transformVector(float[] vector) {
         float vw = vector.length > 3 ? vector[3] : 1.0F;
         float x = this.mat[0] * vector[0] + this.mat[1] * vector[1] + this.mat[2] * vector[2] + this.mat[3] * vw;
         float y = this.mat[4] * vector[0] + this.mat[5] * vector[1] + this.mat[6] * vector[2] + this.mat[7] * vw;
@@ -72,55 +64,46 @@ public class Transform implements Cloneable
         vector[1] = y;
         vector[2] = z;
 
-        if (vector.length > 3)
-        {
+        if (vector.length > 3) {
             vector[3] = w;
         }
     }
 
-    public void transformVectors(float[] vectors, int size, int base, int count)
-    {
-        if (size >= 1 && size <= 4)
-        {
-            if (vectors.length < base + count * size)
-            {
+    public void transformVectors(float[] vectors, int size, int base, int count) {
+        if (size >= 1 && size <= 4) {
+            if (vectors.length < base + count * size) {
                 throw new RuntimeException("Attempting to transform vector array that is too short.");
-            }
-            else
-            {
-                for (int offset = base; offset < base + count * size; offset += size)
-                {
+            } else {
+                for (int offset = base; offset < base + count * size; offset += size) {
                     float vx = vectors[offset + 0];
                     float vy = size > 1 ? vectors[offset + 1] : 0.0F;
                     float vz = size > 2 ? vectors[offset + 2] : 0.0F;
                     float vw = size > 3 ? vectors[offset + 3] : 1.0F;
                     vectors[offset + 0] = this.mat[0] * vx + this.mat[1] * vy + this.mat[2] * vz + this.mat[3] * vw;
 
-                    if (size > 1)
-                    {
+                    if (size > 1) {
                         vectors[offset + 1] = this.mat[4] * vx + this.mat[5] * vy + this.mat[6] * vz + this.mat[7] * vw;
                     }
 
-                    if (size > 2)
-                    {
-                        vectors[offset + 2] = this.mat[8] * vx + this.mat[9] * vy + this.mat[10] * vz + this.mat[11] * vw;
+                    if (size > 2) {
+                        vectors[offset + 2] = this.mat[8] * vx + this.mat[9] * vy
+                            + this.mat[10] * vz
+                            + this.mat[11] * vw;
                     }
 
-                    if (size > 3)
-                    {
-                        vectors[offset + 3] = this.mat[12] * vx + this.mat[13] * vy + this.mat[14] * vz + this.mat[15] * vw;
+                    if (size > 3) {
+                        vectors[offset + 3] = this.mat[12] * vx + this.mat[13] * vy
+                            + this.mat[14] * vz
+                            + this.mat[15] * vw;
                     }
                 }
             }
-        }
-        else
-        {
+        } else {
             throw new RuntimeException("Attempting to transform vectors of invalid size.");
         }
     }
 
-    public void transformBB(float[] bounds)
-    {
+    public void transformBB(float[] bounds) {
         float[] v = new float[3];
         float minX = Float.POSITIVE_INFINITY;
         float minY = Float.POSITIVE_INFINITY;
@@ -129,40 +112,33 @@ public class Transform implements Cloneable
         float maxY = Float.NEGATIVE_INFINITY;
         float maxZ = Float.NEGATIVE_INFINITY;
 
-        for (int c = 0; c < 8; ++c)
-        {
+        for (int c = 0; c < 8; ++c) {
             v[0] = bounds[(c & 1) == 0 ? 0 : 3];
             v[1] = bounds[(c & 2) == 0 ? 1 : 4];
             v[2] = bounds[(c & 4) == 0 ? 2 : 5];
             this.transformVector(v);
 
-            if (v[0] < minX)
-            {
+            if (v[0] < minX) {
                 minX = v[0];
             }
 
-            if (v[1] < minY)
-            {
+            if (v[1] < minY) {
                 minY = v[1];
             }
 
-            if (v[2] < minZ)
-            {
+            if (v[2] < minZ) {
                 minZ = v[2];
             }
 
-            if (v[0] > maxX)
-            {
+            if (v[0] > maxX) {
                 maxX = v[0];
             }
 
-            if (v[1] > maxY)
-            {
+            if (v[1] > maxY) {
                 maxY = v[1];
             }
 
-            if (v[2] > maxZ)
-            {
+            if (v[2] > maxZ) {
                 maxZ = v[2];
             }
         }
@@ -175,26 +151,21 @@ public class Transform implements Cloneable
         bounds[5] = maxZ;
     }
 
-    public Transform rotate(float angle, float axisX, float axisY, float axisZ)
-    {
+    public Transform rotate(float angle, float axisX, float axisY, float axisZ) {
         float r = axisX * axisX + axisY * axisY + axisZ * axisZ;
 
-        if (r == 0.0F)
-        {
+        if (r == 0.0F) {
             throw new RuntimeException("Attempting to rotate about a null vector");
-        }
-        else
-        {
-            if (r != 1.0F)
-            {
-                r = (float)Math.sqrt((double)r);
+        } else {
+            if (r != 1.0F) {
+                r = (float) Math.sqrt((double) r);
                 axisX /= r;
                 axisY /= r;
                 axisZ /= r;
             }
 
-            float s = (float)Math.sin((double)angle);
-            float nc = 1.0F - (float)Math.cos((double)angle);
+            float s = (float) Math.sin((double) angle);
+            float nc = 1.0F - (float) Math.cos((double) angle);
             float[] rot = new float[16];
             rot[0] = 1.0F + (axisX * axisX - 1.0F) * nc;
             rot[1] = axisX * axisY * nc - axisZ * s;
@@ -211,10 +182,9 @@ public class Transform implements Cloneable
         }
     }
 
-    public Transform rotateX(float angle)
-    {
-        float s = (float)Math.sin((double)angle);
-        float c = (float)Math.cos((double)angle);
+    public Transform rotateX(float angle) {
+        float s = (float) Math.sin((double) angle);
+        float c = (float) Math.cos((double) angle);
         float tmp = 0.0F;
         tmp = this.mat[1];
         this.mat[1] = tmp * c + this.mat[2] * s;
@@ -231,10 +201,9 @@ public class Transform implements Cloneable
         return this;
     }
 
-    public Transform rotateY(float angle)
-    {
-        float s = (float)Math.sin((double)angle);
-        float c = (float)Math.cos((double)angle);
+    public Transform rotateY(float angle) {
+        float s = (float) Math.sin((double) angle);
+        float c = (float) Math.cos((double) angle);
         float tmp = 0.0F;
         tmp = this.mat[0];
         this.mat[0] = tmp * c - this.mat[2] * s;
@@ -251,10 +220,9 @@ public class Transform implements Cloneable
         return this;
     }
 
-    public Transform rotateZ(float angle)
-    {
-        float s = (float)Math.sin((double)angle);
-        float c = (float)Math.cos((double)angle);
+    public Transform rotateZ(float angle) {
+        float s = (float) Math.sin((double) angle);
+        float c = (float) Math.cos((double) angle);
         float tmp = 0.0F;
         tmp = this.mat[0];
         this.mat[0] = tmp * c + this.mat[1] * s;
@@ -271,19 +239,14 @@ public class Transform implements Cloneable
         return this;
     }
 
-    public Transform rotateXInto(float axisX, float axisY, float axisZ)
-    {
+    public Transform rotateXInto(float axisX, float axisY, float axisZ) {
         float r = axisX * axisX + axisY * axisY + axisZ * axisZ;
 
-        if (r == 0.0F)
-        {
+        if (r == 0.0F) {
             throw new RuntimeException("Attempting to rotate into a null vector");
-        }
-        else
-        {
-            if (r != 1.0F)
-            {
-                r = (float)Math.sqrt((double)r);
+        } else {
+            if (r != 1.0F) {
+                r = (float) Math.sqrt((double) r);
                 axisX /= r;
                 axisY /= r;
                 axisZ /= r;
@@ -291,12 +254,9 @@ public class Transform implements Cloneable
 
             float s2 = axisY * axisY + axisZ * axisZ;
 
-            if (s2 == 0.0F)
-            {
+            if (s2 == 0.0F) {
                 return this;
-            }
-            else
-            {
+            } else {
                 float[] rot = new float[16];
                 rot[0] = axisX;
                 rot[1] = -axisY;
@@ -314,19 +274,14 @@ public class Transform implements Cloneable
         }
     }
 
-    public Transform rotateYInto(float axisX, float axisY, float axisZ)
-    {
+    public Transform rotateYInto(float axisX, float axisY, float axisZ) {
         float r = axisX * axisX + axisY * axisY + axisZ * axisZ;
 
-        if (r == 0.0F)
-        {
+        if (r == 0.0F) {
             throw new RuntimeException("Attempting to rotate into a null vector");
-        }
-        else
-        {
-            if (r != 1.0F)
-            {
-                r = (float)Math.sqrt((double)r);
+        } else {
+            if (r != 1.0F) {
+                r = (float) Math.sqrt((double) r);
                 axisX /= r;
                 axisY /= r;
                 axisZ /= r;
@@ -334,12 +289,9 @@ public class Transform implements Cloneable
 
             float s2 = axisX * axisX + axisZ * axisZ;
 
-            if (s2 == 0.0F)
-            {
+            if (s2 == 0.0F) {
                 return this;
-            }
-            else
-            {
+            } else {
                 float[] rot = new float[16];
                 rot[0] = (axisX * axisX * axisY + axisZ * axisZ) / s2;
                 rot[1] = axisX;
@@ -357,19 +309,14 @@ public class Transform implements Cloneable
         }
     }
 
-    public Transform rotateZInto(float axisX, float axisY, float axisZ)
-    {
+    public Transform rotateZInto(float axisX, float axisY, float axisZ) {
         float r = axisX * axisX + axisY * axisY + axisZ * axisZ;
 
-        if (r == 0.0F)
-        {
+        if (r == 0.0F) {
             throw new RuntimeException("Attempting to rotate into a null vector");
-        }
-        else
-        {
-            if (r != 1.0F)
-            {
-                r = (float)Math.sqrt((double)r);
+        } else {
+            if (r != 1.0F) {
+                r = (float) Math.sqrt((double) r);
                 axisX /= r;
                 axisY /= r;
                 axisZ /= r;
@@ -377,12 +324,9 @@ public class Transform implements Cloneable
 
             float s2 = axisX * axisX + axisY * axisY;
 
-            if (s2 == 0.0F)
-            {
+            if (s2 == 0.0F) {
                 return this;
-            }
-            else
-            {
+            } else {
                 float[] rot = new float[16];
                 rot[0] = (axisX * axisX * axisZ + axisY * axisY) / s2;
                 rot[1] = axisX * axisY * (axisZ - 1.0F) / s2;
@@ -400,19 +344,14 @@ public class Transform implements Cloneable
         }
     }
 
-    public Transform scale(float scaleM, float axisX, float axisY, float axisZ)
-    {
+    public Transform scale(float scaleM, float axisX, float axisY, float axisZ) {
         float r = axisX * axisX + axisY * axisY + axisZ * axisZ;
 
-        if (r == 0.0F)
-        {
+        if (r == 0.0F) {
             throw new RuntimeException("Attempting to scale along a null vector");
-        }
-        else
-        {
-            if (r != 1.0F)
-            {
-                r = (float)Math.sqrt((double)r);
+        } else {
+            if (r != 1.0F) {
+                r = (float) Math.sqrt((double) r);
                 axisX /= r;
                 axisY /= r;
                 axisZ /= r;
@@ -435,8 +374,7 @@ public class Transform implements Cloneable
         }
     }
 
-    public Transform scale(float scaleX, float scaleY, float scaleZ)
-    {
+    public Transform scale(float scaleX, float scaleY, float scaleZ) {
         this.mat[0] *= scaleX;
         this.mat[1] *= scaleY;
         this.mat[2] *= scaleZ;
@@ -452,19 +390,15 @@ public class Transform implements Cloneable
         return this;
     }
 
-    public Transform shear(float angle, float shearX, float shearY, float shearZ, float invariantX, float invariantY, float invariantZ)
-    {
+    public Transform shear(float angle, float shearX, float shearY, float shearZ, float invariantX, float invariantY,
+        float invariantZ) {
         float ri = invariantX * invariantX + invariantY * invariantY + invariantZ * invariantZ;
 
-        if (ri == 0.0F)
-        {
+        if (ri == 0.0F) {
             throw new RuntimeException("Attempting to shear with a null invariant vector");
-        }
-        else
-        {
-            if (ri != 1.0F)
-            {
-                ri = (float)Math.sqrt((double)ri);
+        } else {
+            if (ri != 1.0F) {
+                ri = (float) Math.sqrt((double) ri);
                 invariantX /= ri;
                 invariantY /= ri;
                 invariantZ /= ri;
@@ -472,8 +406,7 @@ public class Transform implements Cloneable
 
             float p = shearX * invariantX + shearY * invariantY + shearZ * invariantZ;
 
-            if (p != 0.0F)
-            {
+            if (p != 0.0F) {
                 shearX -= p * invariantX;
                 shearY -= p * invariantY;
                 shearZ -= p * invariantZ;
@@ -481,21 +414,17 @@ public class Transform implements Cloneable
 
             float rs = shearX * shearX + shearY * shearY + shearZ * shearZ;
 
-            if (rs == 0.0F)
-            {
+            if (rs == 0.0F) {
                 throw new RuntimeException("Attempting to shear with a null or parallel shear vector");
-            }
-            else
-            {
-                if (rs != 1.0F)
-                {
-                    rs = (float)Math.sqrt((double)rs);
+            } else {
+                if (rs != 1.0F) {
+                    rs = (float) Math.sqrt((double) rs);
                     shearX /= rs;
                     shearY /= rs;
                     shearZ /= rs;
                 }
 
-                float t = (float)Math.tan((double)angle);
+                float t = (float) Math.tan((double) angle);
                 float[] shr = new float[16];
                 shr[0] = shearX * invariantX * t + 1.0F;
                 shr[1] = shearX * invariantY * t;
@@ -513,19 +442,14 @@ public class Transform implements Cloneable
         }
     }
 
-    public Transform reflect(float mirrorNormalX, float mirrorNormalY, float mirrorNormalZ)
-    {
+    public Transform reflect(float mirrorNormalX, float mirrorNormalY, float mirrorNormalZ) {
         float r = mirrorNormalX * mirrorNormalX + mirrorNormalY * mirrorNormalY + mirrorNormalZ * mirrorNormalZ;
 
-        if (r == 0.0F)
-        {
+        if (r == 0.0F) {
             throw new RuntimeException("Attempting to reflect across a null plane");
-        }
-        else
-        {
-            if (r != 1.0F)
-            {
-                r = (float)Math.sqrt((double)r);
+        } else {
+            if (r != 1.0F) {
+                r = (float) Math.sqrt((double) r);
                 mirrorNormalX /= r;
                 mirrorNormalY /= r;
                 mirrorNormalZ /= r;
@@ -547,8 +471,7 @@ public class Transform implements Cloneable
         }
     }
 
-    public Transform translate(float transX, float transY, float transZ)
-    {
+    public Transform translate(float transX, float transY, float transZ) {
         this.mat[3] += this.mat[0] * transX + this.mat[1] * transY + this.mat[2] * transZ;
         this.mat[7] += this.mat[4] * transX + this.mat[5] * transY + this.mat[6] * transZ;
         this.mat[11] += this.mat[8] * transX + this.mat[9] * transY + this.mat[10] * transZ;
@@ -556,37 +479,76 @@ public class Transform implements Cloneable
         return this;
     }
 
-    public float determinant()
-    {
-        return this.mat[0] * (this.mat[5] * (this.mat[10] * this.mat[15] - this.mat[11] * this.mat[14]) + this.mat[6] * (this.mat[11] * this.mat[13] - this.mat[15] * this.mat[9]) + this.mat[7] * (this.mat[14] * this.mat[9] - this.mat[10] * this.mat[13])) + this.mat[1] * (this.mat[4] * (this.mat[11] * this.mat[14] - this.mat[10] * this.mat[15]) + this.mat[6] * (this.mat[15] * this.mat[8] - this.mat[11] * this.mat[12]) + this.mat[7] * (this.mat[10] * this.mat[12] - this.mat[14] * this.mat[8])) + this.mat[2] * (this.mat[4] * (this.mat[15] * this.mat[9] - this.mat[11] * this.mat[13]) + this.mat[5] * (this.mat[11] * this.mat[12] - this.mat[15] * this.mat[8]) + this.mat[7] * (this.mat[13] * this.mat[8] - this.mat[12] * this.mat[9])) + this.mat[3] * (this.mat[4] * (this.mat[10] * this.mat[13] - this.mat[14] * this.mat[9]) + this.mat[5] * (this.mat[14] * this.mat[8] - this.mat[10] * this.mat[12]) + this.mat[6] * (this.mat[12] * this.mat[9] - this.mat[13] * this.mat[8]));
+    public float determinant() {
+        return this.mat[0]
+            * (this.mat[5] * (this.mat[10] * this.mat[15] - this.mat[11] * this.mat[14])
+                + this.mat[6] * (this.mat[11] * this.mat[13] - this.mat[15] * this.mat[9])
+                + this.mat[7] * (this.mat[14] * this.mat[9] - this.mat[10] * this.mat[13]))
+            + this.mat[1] * (this.mat[4] * (this.mat[11] * this.mat[14] - this.mat[10] * this.mat[15])
+                + this.mat[6] * (this.mat[15] * this.mat[8] - this.mat[11] * this.mat[12])
+                + this.mat[7] * (this.mat[10] * this.mat[12] - this.mat[14] * this.mat[8]))
+            + this.mat[2] * (this.mat[4] * (this.mat[15] * this.mat[9] - this.mat[11] * this.mat[13])
+                + this.mat[5] * (this.mat[11] * this.mat[12] - this.mat[15] * this.mat[8])
+                + this.mat[7] * (this.mat[13] * this.mat[8] - this.mat[12] * this.mat[9]))
+            + this.mat[3] * (this.mat[4] * (this.mat[10] * this.mat[13] - this.mat[14] * this.mat[9])
+                + this.mat[5] * (this.mat[14] * this.mat[8] - this.mat[10] * this.mat[12])
+                + this.mat[6] * (this.mat[12] * this.mat[9] - this.mat[13] * this.mat[8]));
     }
 
-    public Transform inverse()
-    {
+    public Transform inverse() {
         float det = this.determinant();
 
-        if (det == 0.0F)
-        {
+        if (det == 0.0F) {
             throw new RuntimeException("Attempting to invert a singular matrix");
-        }
-        else
-        {
-            float n00 = this.mat[5] * (this.mat[10] * this.mat[15] - this.mat[11] * this.mat[14]) + this.mat[6] * (this.mat[11] * this.mat[13] - this.mat[15] * this.mat[9]) + this.mat[7] * (this.mat[14] * this.mat[9] - this.mat[10] * this.mat[13]);
-            float n01 = this.mat[1] * (this.mat[11] * this.mat[14] - this.mat[10] * this.mat[15]) + this.mat[2] * (this.mat[15] * this.mat[9] - this.mat[11] * this.mat[13]) + this.mat[3] * (this.mat[10] * this.mat[13] - this.mat[14] * this.mat[9]);
-            float n02 = this.mat[1] * (this.mat[15] * this.mat[6] - this.mat[14] * this.mat[7]) + this.mat[2] * (this.mat[13] * this.mat[7] - this.mat[15] * this.mat[5]) + this.mat[3] * (this.mat[14] * this.mat[5] - this.mat[13] * this.mat[6]);
-            float n03 = this.mat[1] * (this.mat[10] * this.mat[7] - this.mat[11] * this.mat[6]) + this.mat[2] * (this.mat[11] * this.mat[5] - this.mat[7] * this.mat[9]) + this.mat[3] * (this.mat[6] * this.mat[9] - this.mat[10] * this.mat[5]);
-            float n04 = this.mat[4] * (this.mat[11] * this.mat[14] - this.mat[10] * this.mat[15]) + this.mat[6] * (this.mat[15] * this.mat[8] - this.mat[11] * this.mat[12]) + this.mat[7] * (this.mat[10] * this.mat[12] - this.mat[14] * this.mat[8]);
-            float n05 = this.mat[0] * (this.mat[10] * this.mat[15] - this.mat[11] * this.mat[14]) + this.mat[2] * (this.mat[11] * this.mat[12] - this.mat[15] * this.mat[8]) + this.mat[3] * (this.mat[14] * this.mat[8] - this.mat[10] * this.mat[12]);
-            float n06 = this.mat[0] * (this.mat[14] * this.mat[7] - this.mat[15] * this.mat[6]) + this.mat[2] * (this.mat[15] * this.mat[4] - this.mat[12] * this.mat[7]) + this.mat[3] * (this.mat[12] * this.mat[6] - this.mat[14] * this.mat[4]);
-            float n07 = this.mat[0] * (this.mat[11] * this.mat[6] - this.mat[10] * this.mat[7]) + this.mat[2] * (this.mat[7] * this.mat[8] - this.mat[11] * this.mat[4]) + this.mat[3] * (this.mat[10] * this.mat[4] - this.mat[6] * this.mat[8]);
-            float n08 = this.mat[4] * (this.mat[15] * this.mat[9] - this.mat[11] * this.mat[13]) + this.mat[5] * (this.mat[11] * this.mat[12] - this.mat[15] * this.mat[8]) + this.mat[7] * (this.mat[13] * this.mat[8] - this.mat[12] * this.mat[9]);
-            float n09 = this.mat[0] * (this.mat[11] * this.mat[13] - this.mat[15] * this.mat[9]) + this.mat[1] * (this.mat[15] * this.mat[8] - this.mat[11] * this.mat[12]) + this.mat[3] * (this.mat[12] * this.mat[9] - this.mat[13] * this.mat[8]);
-            float n10 = this.mat[0] * (this.mat[15] * this.mat[5] - this.mat[13] * this.mat[7]) + this.mat[1] * (this.mat[12] * this.mat[7] - this.mat[15] * this.mat[4]) + this.mat[3] * (this.mat[13] * this.mat[4] - this.mat[12] * this.mat[5]);
-            float n11 = this.mat[0] * (this.mat[7] * this.mat[9] - this.mat[11] * this.mat[5]) + this.mat[1] * (this.mat[11] * this.mat[4] - this.mat[7] * this.mat[8]) + this.mat[3] * (this.mat[5] * this.mat[8] - this.mat[4] * this.mat[9]);
-            float n12 = this.mat[4] * (this.mat[10] * this.mat[13] - this.mat[14] * this.mat[9]) + this.mat[5] * (this.mat[14] * this.mat[8] - this.mat[10] * this.mat[12]) + this.mat[6] * (this.mat[12] * this.mat[9] - this.mat[13] * this.mat[8]);
-            float n13 = this.mat[0] * (this.mat[14] * this.mat[9] - this.mat[10] * this.mat[13]) + this.mat[1] * (this.mat[10] * this.mat[12] - this.mat[14] * this.mat[8]) + this.mat[2] * (this.mat[13] * this.mat[8] - this.mat[12] * this.mat[9]);
-            float n14 = this.mat[0] * (this.mat[13] * this.mat[6] - this.mat[14] * this.mat[5]) + this.mat[1] * (this.mat[14] * this.mat[4] - this.mat[12] * this.mat[6]) + this.mat[2] * (this.mat[12] * this.mat[5] - this.mat[13] * this.mat[4]);
-            float n15 = this.mat[0] * (this.mat[10] * this.mat[5] - this.mat[6] * this.mat[9]) + this.mat[1] * (this.mat[6] * this.mat[8] - this.mat[10] * this.mat[4]) + this.mat[2] * (this.mat[4] * this.mat[9] - this.mat[5] * this.mat[8]);
+        } else {
+            float n00 = this.mat[5] * (this.mat[10] * this.mat[15] - this.mat[11] * this.mat[14])
+                + this.mat[6] * (this.mat[11] * this.mat[13] - this.mat[15] * this.mat[9])
+                + this.mat[7] * (this.mat[14] * this.mat[9] - this.mat[10] * this.mat[13]);
+            float n01 = this.mat[1] * (this.mat[11] * this.mat[14] - this.mat[10] * this.mat[15])
+                + this.mat[2] * (this.mat[15] * this.mat[9] - this.mat[11] * this.mat[13])
+                + this.mat[3] * (this.mat[10] * this.mat[13] - this.mat[14] * this.mat[9]);
+            float n02 = this.mat[1] * (this.mat[15] * this.mat[6] - this.mat[14] * this.mat[7])
+                + this.mat[2] * (this.mat[13] * this.mat[7] - this.mat[15] * this.mat[5])
+                + this.mat[3] * (this.mat[14] * this.mat[5] - this.mat[13] * this.mat[6]);
+            float n03 = this.mat[1] * (this.mat[10] * this.mat[7] - this.mat[11] * this.mat[6])
+                + this.mat[2] * (this.mat[11] * this.mat[5] - this.mat[7] * this.mat[9])
+                + this.mat[3] * (this.mat[6] * this.mat[9] - this.mat[10] * this.mat[5]);
+            float n04 = this.mat[4] * (this.mat[11] * this.mat[14] - this.mat[10] * this.mat[15])
+                + this.mat[6] * (this.mat[15] * this.mat[8] - this.mat[11] * this.mat[12])
+                + this.mat[7] * (this.mat[10] * this.mat[12] - this.mat[14] * this.mat[8]);
+            float n05 = this.mat[0] * (this.mat[10] * this.mat[15] - this.mat[11] * this.mat[14])
+                + this.mat[2] * (this.mat[11] * this.mat[12] - this.mat[15] * this.mat[8])
+                + this.mat[3] * (this.mat[14] * this.mat[8] - this.mat[10] * this.mat[12]);
+            float n06 = this.mat[0] * (this.mat[14] * this.mat[7] - this.mat[15] * this.mat[6])
+                + this.mat[2] * (this.mat[15] * this.mat[4] - this.mat[12] * this.mat[7])
+                + this.mat[3] * (this.mat[12] * this.mat[6] - this.mat[14] * this.mat[4]);
+            float n07 = this.mat[0] * (this.mat[11] * this.mat[6] - this.mat[10] * this.mat[7])
+                + this.mat[2] * (this.mat[7] * this.mat[8] - this.mat[11] * this.mat[4])
+                + this.mat[3] * (this.mat[10] * this.mat[4] - this.mat[6] * this.mat[8]);
+            float n08 = this.mat[4] * (this.mat[15] * this.mat[9] - this.mat[11] * this.mat[13])
+                + this.mat[5] * (this.mat[11] * this.mat[12] - this.mat[15] * this.mat[8])
+                + this.mat[7] * (this.mat[13] * this.mat[8] - this.mat[12] * this.mat[9]);
+            float n09 = this.mat[0] * (this.mat[11] * this.mat[13] - this.mat[15] * this.mat[9])
+                + this.mat[1] * (this.mat[15] * this.mat[8] - this.mat[11] * this.mat[12])
+                + this.mat[3] * (this.mat[12] * this.mat[9] - this.mat[13] * this.mat[8]);
+            float n10 = this.mat[0] * (this.mat[15] * this.mat[5] - this.mat[13] * this.mat[7])
+                + this.mat[1] * (this.mat[12] * this.mat[7] - this.mat[15] * this.mat[4])
+                + this.mat[3] * (this.mat[13] * this.mat[4] - this.mat[12] * this.mat[5]);
+            float n11 = this.mat[0] * (this.mat[7] * this.mat[9] - this.mat[11] * this.mat[5])
+                + this.mat[1] * (this.mat[11] * this.mat[4] - this.mat[7] * this.mat[8])
+                + this.mat[3] * (this.mat[5] * this.mat[8] - this.mat[4] * this.mat[9]);
+            float n12 = this.mat[4] * (this.mat[10] * this.mat[13] - this.mat[14] * this.mat[9])
+                + this.mat[5] * (this.mat[14] * this.mat[8] - this.mat[10] * this.mat[12])
+                + this.mat[6] * (this.mat[12] * this.mat[9] - this.mat[13] * this.mat[8]);
+            float n13 = this.mat[0] * (this.mat[14] * this.mat[9] - this.mat[10] * this.mat[13])
+                + this.mat[1] * (this.mat[10] * this.mat[12] - this.mat[14] * this.mat[8])
+                + this.mat[2] * (this.mat[13] * this.mat[8] - this.mat[12] * this.mat[9]);
+            float n14 = this.mat[0] * (this.mat[13] * this.mat[6] - this.mat[14] * this.mat[5])
+                + this.mat[1] * (this.mat[14] * this.mat[4] - this.mat[12] * this.mat[6])
+                + this.mat[2] * (this.mat[12] * this.mat[5] - this.mat[13] * this.mat[4]);
+            float n15 = this.mat[0] * (this.mat[10] * this.mat[5] - this.mat[6] * this.mat[9])
+                + this.mat[1] * (this.mat[6] * this.mat[8] - this.mat[10] * this.mat[4])
+                + this.mat[2] * (this.mat[4] * this.mat[9] - this.mat[5] * this.mat[8]);
             this.mat[0] = n00 / det;
             this.mat[1] = n01 / det;
             this.mat[2] = n02 / det;
@@ -607,8 +569,7 @@ public class Transform implements Cloneable
         }
     }
 
-    public Transform transpose()
-    {
+    public Transform transpose() {
         float temp = 0.0F;
         temp = this.mat[1];
         this.mat[1] = this.mat[4];
@@ -631,13 +592,18 @@ public class Transform implements Cloneable
         return this;
     }
 
-    public String toString()
-    {
-        return String.format("{%#7.4f,%#7.4f,%#7.4f,%#7.4f},\n{%#7.4f,%#7.4f,%#7.4f,%#7.4f},\n{%#7.4f,%#7.4f,%#7.4f,%#7.4f},\n{%#7.4f,%#7.4f,%#7.4f,%#7.4f}", new Object[] {Float.valueOf(this.mat[0]), Float.valueOf(this.mat[1]), Float.valueOf(this.mat[2]), Float.valueOf(this.mat[3]), Float.valueOf(this.mat[4]), Float.valueOf(this.mat[5]), Float.valueOf(this.mat[6]), Float.valueOf(this.mat[7]), Float.valueOf(this.mat[8]), Float.valueOf(this.mat[9]), Float.valueOf(this.mat[10]), Float.valueOf(this.mat[11]), Float.valueOf(this.mat[12]), Float.valueOf(this.mat[13]), Float.valueOf(this.mat[14]), Float.valueOf(this.mat[15])});
+    public String toString() {
+        return String.format(
+            "{%#7.4f,%#7.4f,%#7.4f,%#7.4f},\n{%#7.4f,%#7.4f,%#7.4f,%#7.4f},\n{%#7.4f,%#7.4f,%#7.4f,%#7.4f},\n{%#7.4f,%#7.4f,%#7.4f,%#7.4f}",
+            new Object[] { Float.valueOf(this.mat[0]), Float.valueOf(this.mat[1]), Float.valueOf(this.mat[2]),
+                Float.valueOf(this.mat[3]), Float.valueOf(this.mat[4]), Float.valueOf(this.mat[5]),
+                Float.valueOf(this.mat[6]), Float.valueOf(this.mat[7]), Float.valueOf(this.mat[8]),
+                Float.valueOf(this.mat[9]), Float.valueOf(this.mat[10]), Float.valueOf(this.mat[11]),
+                Float.valueOf(this.mat[12]), Float.valueOf(this.mat[13]), Float.valueOf(this.mat[14]),
+                Float.valueOf(this.mat[15]) });
     }
 
-    protected static void mult(float[] base, float[] mult)
-    {
+    protected static void mult(float[] base, float[] mult) {
         float n00 = base[0] * mult[0] + base[1] * mult[4] + base[2] * mult[8] + base[3] * mult[12];
         float n01 = base[0] * mult[1] + base[1] * mult[5] + base[2] * mult[9] + base[3] * mult[13];
         float n02 = base[0] * mult[2] + base[1] * mult[6] + base[2] * mult[10] + base[3] * mult[14];

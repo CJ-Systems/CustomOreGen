@@ -1,5 +1,28 @@
 package CustomOreGen.Config;
 
+import java.io.File;
+import java.io.IOException;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Random;
+import java.util.Vector;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
+
+import net.minecraftforge.oredict.OreDictionary;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.UserDataHandler;
+import org.xml.sax.SAXException;
+
 import CustomOreGen.Config.ValidatorNode.IValidatorFactory;
 import CustomOreGen.Server.ChoiceOption;
 import CustomOreGen.Server.ConfigOption;
@@ -15,58 +38,34 @@ import CustomOreGen.Util.BiomeDescriptor;
 import CustomOreGen.Util.BlockDescriptor;
 import CustomOreGen.Util.CIStringMap;
 import cpw.mods.fml.common.Loader;
-import java.io.File;
-import java.io.IOException;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Random;
-import java.util.Vector;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
-import net.minecraftforge.oredict.OreDictionary;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-import org.w3c.dom.UserDataHandler;
-import org.xml.sax.SAXException;
 
-public class ConfigParser
-{
+public class ConfigParser {
+
     public final WorldConfig target;
     public final ConfigExpressionEvaluator defaultEvaluator = new ConfigExpressionEvaluator();
     protected Random rng = null;
     protected final DocumentBuilder domBuilder;
     protected final SAXParser saxParser;
-    private static final Map<String,IValidatorFactory<ValidatorDistribution>> distributionValidators =
-    		new HashMap<String,IValidatorFactory<ValidatorDistribution>>();
+    private static final Map<String, IValidatorFactory<ValidatorDistribution>> distributionValidators = new HashMap<String, IValidatorFactory<ValidatorDistribution>>();
 
-    public static boolean blockExists(String blockDescription)
-    {
+    public static boolean blockExists(String blockDescription) {
         return (new BlockDescriptor(blockDescription)).getTotalMatchWeight() > 0.0F;
     }
 
-    public static boolean biomeExists(String biomeDescription)
-    {
+    public static boolean biomeExists(String biomeDescription) {
         return (new BiomeDescriptor(biomeDescription)).getTotalMatchWeight() > 0.0F;
     }
 
-    public static boolean oreExists(String oreDescription)
-    {
-    	return OreDictionary.getOres(oreDescription).size() > 0;
+    public static boolean oreExists(String oreDescription) {
+        return OreDictionary.getOres(oreDescription)
+            .size() > 0;
     }
 
-    public float nextRandom()
-    {
+    public float nextRandom() {
         return this.rng == null ? 0.0F : this.rng.nextFloat();
     }
 
-    public ConfigParser(WorldConfig target) throws ParserConfigurationException, SAXException
-    {
+    public ConfigParser(WorldConfig target) throws ParserConfigurationException, SAXException {
         this.target = target;
         DocumentBuilderFactory domBuilderFactory = DocumentBuilderFactory.newInstance();
         domBuilderFactory.setNamespaceAware(true);
@@ -79,10 +78,9 @@ public class ConfigParser
         this.saxParser = saxParserFactory.newSAXParser();
     }
 
-    public void parseFile(File file) throws ParserConfigurationException, IOException, SAXException
-    {
+    public void parseFile(File file) throws ParserConfigurationException, IOException, SAXException {
         Document fileDOM = this.domBuilder.newDocument();
-        fileDOM.setUserData("value", file, (UserDataHandler)null);
+        fileDOM.setUserData("value", file, (UserDataHandler) null);
         this.saxParser.parse(file, new LineAwareSAXHandler(fileDOM));
         ValidatorNode validator = new ValidatorNode(this, fileDOM);
         Vector<String> topLevelNodes = new Vector<String>();
@@ -100,30 +98,35 @@ public class ConfigParser
         validator.addGlobalValidator(Node.ELEMENT_NODE, "IfOreExists", new ValidatorIfOreExists.Factory(false));
         validator.addGlobalValidator(Node.ELEMENT_NODE, "IfNotOreExists", new ValidatorIfOreExists.Factory(true));
         validator.addGlobalValidator(Node.ELEMENT_NODE, "GetOption", new ValidatorRefOption.Factory());
-        validator.addGlobalValidator(Node.ELEMENT_NODE, "Expression", new ValidatorExpression.Factory(this.defaultEvaluator));
+        validator.addGlobalValidator(
+            Node.ELEMENT_NODE,
+            "Expression",
+            new ValidatorExpression.Factory(this.defaultEvaluator));
         topLevelNodes.add("OptionDisplayGroup");
-        validator.addGlobalValidator(Node.ELEMENT_NODE, "OptionDisplayGroup", new ValidatorOption.Factory(ConfigOption.DisplayGroup.class));
+        validator.addGlobalValidator(
+            Node.ELEMENT_NODE,
+            "OptionDisplayGroup",
+            new ValidatorOption.Factory(ConfigOption.DisplayGroup.class));
         topLevelNodes.add("OptionChoice");
-        validator.addGlobalValidator(Node.ELEMENT_NODE, "OptionChoice", new ValidatorOption.Factory(ChoiceOption.class));
+        validator
+            .addGlobalValidator(Node.ELEMENT_NODE, "OptionChoice", new ValidatorOption.Factory(ChoiceOption.class));
         topLevelNodes.add("OptionNumeric");
-        validator.addGlobalValidator(Node.ELEMENT_NODE, "OptionNumeric", new ValidatorOption.Factory(NumericOption.class));
+        validator
+            .addGlobalValidator(Node.ELEMENT_NODE, "OptionNumeric", new ValidatorOption.Factory(NumericOption.class));
         topLevelNodes.add("MystcraftSymbol");
         validator.addGlobalValidator(Node.ELEMENT_NODE, "MystcraftSymbol", new ValidatorMystcraftSymbol.Factory());
         validator.addGlobalValidator(Node.ELEMENT_NODE, "BiomeSet", new ValidatorBiomeSet.Factory());
 
-        for (Entry<String,IValidatorFactory<ValidatorDistribution>> entry : distributionValidators.entrySet()) {
-        	validator.addGlobalValidator(Node.ELEMENT_NODE, entry.getKey(), entry.getValue());
+        for (Entry<String, IValidatorFactory<ValidatorDistribution>> entry : distributionValidators.entrySet()) {
+            validator.addGlobalValidator(Node.ELEMENT_NODE, entry.getKey(), entry.getValue());
             topLevelNodes.add(entry.getKey());
         }
 
         validator.addGlobalValidator(Node.ELEMENT_NODE, "Config", new ValidatorRoot.Factory(topLevelNodes));
 
-        if (this.target.worldInfo == null)
-        {
+        if (this.target.worldInfo == null) {
             this.rng = null;
-        }
-        else
-        {
+        } else {
             this.rng = new Random(this.target.worldInfo.getSeed());
             this.rng.nextInt();
         }
@@ -132,173 +135,116 @@ public class ConfigParser
     }
 
     @SuppressWarnings("unchecked")
-	public static <T> T parseString(Class<T> type, String value) throws IllegalArgumentException
-    {
-        if (type != null && value != null)
-        {
-            if (type.isAssignableFrom(String.class))
-            {
-                return (T)value;
-            }
-            else if (type.isEnum())
-            {
-            	for (Enum<?> val : (Enum[])type.getEnumConstants()) {
-            		if (val.name().equalsIgnoreCase(value))
-                    {
-                        return (T)val;
+    public static <T> T parseString(Class<T> type, String value) throws IllegalArgumentException {
+        if (type != null && value != null) {
+            if (type.isAssignableFrom(String.class)) {
+                return (T) value;
+            } else if (type.isEnum()) {
+                for (Enum<?> val : (Enum[]) type.getEnumConstants()) {
+                    if (val.name()
+                        .equalsIgnoreCase(value)) {
+                        return (T) val;
                     }
-            	}
+                }
                 throw new IllegalArgumentException("Invalid enumeration value \'" + value + "\'");
-            }
-            else if (!type.isAssignableFrom(Character.TYPE) && !type.isAssignableFrom(Character.class))
-            {
-                if (!type.isAssignableFrom(Boolean.TYPE) && !type.isAssignableFrom(Boolean.class))
-                {
-                    try
-                    {
-                        if (!type.isAssignableFrom(Byte.TYPE) && !type.isAssignableFrom(Byte.class))
-                        {
-                            if (!type.isAssignableFrom(Short.TYPE) && !type.isAssignableFrom(Short.class))
-                            {
-                                if (!type.isAssignableFrom(Integer.TYPE) && !type.isAssignableFrom(Integer.class))
-                                {
-                                    if (!type.isAssignableFrom(Long.TYPE) && !type.isAssignableFrom(Long.class))
-                                    {
-                                        if (!type.isAssignableFrom(Float.TYPE) && !type.isAssignableFrom(Float.class))
-                                        {
-                                            if (!type.isAssignableFrom(Double.TYPE) && !type.isAssignableFrom(Double.class))
-                                            {
-                                                throw new IllegalArgumentException("Type \'" + type.getSimpleName() + "\' is not a string, enumeration, or primitve type.");
+            } else if (!type.isAssignableFrom(Character.TYPE) && !type.isAssignableFrom(Character.class)) {
+                if (!type.isAssignableFrom(Boolean.TYPE) && !type.isAssignableFrom(Boolean.class)) {
+                    try {
+                        if (!type.isAssignableFrom(Byte.TYPE) && !type.isAssignableFrom(Byte.class)) {
+                            if (!type.isAssignableFrom(Short.TYPE) && !type.isAssignableFrom(Short.class)) {
+                                if (!type.isAssignableFrom(Integer.TYPE) && !type.isAssignableFrom(Integer.class)) {
+                                    if (!type.isAssignableFrom(Long.TYPE) && !type.isAssignableFrom(Long.class)) {
+                                        if (!type.isAssignableFrom(Float.TYPE) && !type.isAssignableFrom(Float.class)) {
+                                            if (!type.isAssignableFrom(Double.TYPE)
+                                                && !type.isAssignableFrom(Double.class)) {
+                                                throw new IllegalArgumentException(
+                                                    "Type \'" + type.getSimpleName()
+                                                        + "\' is not a string, enumeration, or primitve type.");
+                                            } else {
+                                                return (T) Double.valueOf(Double.parseDouble(value));
                                             }
-                                            else
-                                            {
-                                                return (T)Double.valueOf(Double.parseDouble(value));
-                                            }
+                                        } else {
+                                            return (T) Float.valueOf(Float.parseFloat(value));
                                         }
-                                        else
-                                        {
-                                            return (T)Float.valueOf(Float.parseFloat(value));
-                                        }
+                                    } else {
+                                        return (T) Long.decode(value);
                                     }
-                                    else
-                                    {
-                                        return (T)Long.decode(value);
-                                    }
+                                } else {
+                                    return (T) Integer.decode(value);
                                 }
-                                else
-                                {
-                                    return (T)Integer.decode(value);
-                                }
+                            } else {
+                                return (T) Short.decode(value);
                             }
-                            else
-                            {
-                                return (T)Short.decode(value);
-                            }
+                        } else {
+                            return (T) Byte.decode(value);
                         }
-                        else
-                        {
-                            return (T)Byte.decode(value);
-                        }
-                    }
-                    catch (NumberFormatException var6)
-                    {
+                    } catch (NumberFormatException var6) {
                         throw new IllegalArgumentException("Invalid numerical value \'" + value + "\'", var6);
                     }
+                } else {
+                    return (T) Boolean.valueOf(Boolean.parseBoolean(value));
                 }
-                else
-                {
-                    return (T)Boolean.valueOf(Boolean.parseBoolean(value));
-                }
+            } else {
+                return (T) (value.length() == 0 ? Character.valueOf('\u0000') : Character.valueOf(value.charAt(0)));
             }
-            else
-            {
-                return (T)(value.length() == 0 ? Character.valueOf('\u0000') : Character.valueOf(value.charAt(0)));
-            }
-        }
-        else
-        {
+        } else {
             return null;
         }
     }
 
-    public static Number convertNumber(Class<? extends Number> type, Number value) throws IllegalArgumentException
-    {
-        if (type != null && value != null)
-        {
-            if (!type.isAssignableFrom(Byte.TYPE) && !type.isAssignableFrom(Byte.class))
-            {
-                if (!type.isAssignableFrom(Short.TYPE) && !type.isAssignableFrom(Short.class))
-                {
-                    if (!type.isAssignableFrom(Integer.TYPE) && !type.isAssignableFrom(Integer.class))
-                    {
-                        if (!type.isAssignableFrom(Long.TYPE) && !type.isAssignableFrom(Long.class))
-                        {
-                            if (!type.isAssignableFrom(Float.TYPE) && !type.isAssignableFrom(Float.class))
-                            {
-                                if (!type.isAssignableFrom(Double.TYPE) && !type.isAssignableFrom(Double.class))
-                                {
-                                    throw new IllegalArgumentException("Type \'" + type.getSimpleName() + "\' is not a numeric type.");
-                                }
-                                else
-                                {
+    public static Number convertNumber(Class<? extends Number> type, Number value) throws IllegalArgumentException {
+        if (type != null && value != null) {
+            if (!type.isAssignableFrom(Byte.TYPE) && !type.isAssignableFrom(Byte.class)) {
+                if (!type.isAssignableFrom(Short.TYPE) && !type.isAssignableFrom(Short.class)) {
+                    if (!type.isAssignableFrom(Integer.TYPE) && !type.isAssignableFrom(Integer.class)) {
+                        if (!type.isAssignableFrom(Long.TYPE) && !type.isAssignableFrom(Long.class)) {
+                            if (!type.isAssignableFrom(Float.TYPE) && !type.isAssignableFrom(Float.class)) {
+                                if (!type.isAssignableFrom(Double.TYPE) && !type.isAssignableFrom(Double.class)) {
+                                    throw new IllegalArgumentException(
+                                        "Type \'" + type.getSimpleName() + "\' is not a numeric type.");
+                                } else {
                                     return Double.valueOf(value.doubleValue());
                                 }
-                            }
-                            else
-                            {
+                            } else {
                                 return Float.valueOf(value.floatValue());
                             }
-                        }
-                        else
-                        {
+                        } else {
                             return Long.valueOf(value.longValue());
                         }
-                    }
-                    else
-                    {
+                    } else {
                         return Integer.valueOf(value.intValue());
                     }
-                }
-                else
-                {
+                } else {
                     return Short.valueOf(value.shortValue());
                 }
-            }
-            else
-            {
+            } else {
                 return Byte.valueOf(value.byteValue());
             }
-        }
-        else
-        {
+        } else {
             return null;
         }
     }
 
-    public static void addDistributionType(String distributionName, IValidatorFactory<ValidatorDistribution> validatorFactory)
-    {
-        if (distributionValidators.containsKey(distributionName))
-        {
-            throw new IllegalArgumentException("A distribution with the name \'" + distributionName + "\' already exists.");
-        }
-        else
-        {
+    public static void addDistributionType(String distributionName,
+        IValidatorFactory<ValidatorDistribution> validatorFactory) {
+        if (distributionValidators.containsKey(distributionName)) {
+            throw new IllegalArgumentException(
+                "A distribution with the name \'" + distributionName + "\' already exists.");
+        } else {
             distributionValidators.put(distributionName, validatorFactory);
         }
     }
 
-    public static void addDistributionType(String distributionName, IDistributionFactory distFactory)
-    {
+    public static void addDistributionType(String distributionName, IDistributionFactory distFactory) {
         addDistributionType(distributionName, new ValidatorDistribution.Factory(distFactory));
     }
 
-    public static void addDistributionType(String distributionName, Class<? extends IOreDistribution> clazz, boolean canGenerate)
-    {
-        addDistributionType(distributionName, (IDistributionFactory)(new StdDistFactory(clazz, canGenerate)));
+    public static void addDistributionType(String distributionName, Class<? extends IOreDistribution> clazz,
+        boolean canGenerate) {
+        addDistributionType(distributionName, (IDistributionFactory) (new StdDistFactory(clazz, canGenerate)));
     }
 
-    static
-    {
+    static {
         addDistributionType("StandardGen", MapGenClusters.class, true);
         addDistributionType("StandardGenPreset", MapGenClusters.class, false);
         addDistributionType("Veins", MapGenVeins.class, true);
@@ -309,87 +255,77 @@ public class ConfigParser
         addDistributionType("SubstitutePreset", WorldGenSubstitution.class, false);
     }
 
-    public class ConfigExpressionEvaluator extends ExpressionEvaluator
-    {
+    public class ConfigExpressionEvaluator extends ExpressionEvaluator {
+
         private CIStringMap<Object> localIdentifiers;
 
-        public ConfigExpressionEvaluator()
-        {
+        public ConfigExpressionEvaluator() {
             this.localIdentifiers = new CIStringMap<Object>();
-            this.localIdentifiers.put("isModInstalled", new EvaluationDelegate(false, Loader.class, "isModLoaded", new Class[] {String.class}));
-            this.localIdentifiers.put("oreExists", new EvaluationDelegate(false, ConfigParser.class, "oreExists", new Class[] {String.class}));
-            this.localIdentifiers.put("blockExists", new EvaluationDelegate(false, ConfigParser.this, "blockExists", new Class[] {String.class}));
-            this.localIdentifiers.put("biomeExists", new EvaluationDelegate(false, ConfigParser.this, "biomeExists", new Class[] {String.class}));
-            this.localIdentifiers.put("world.nextRandom", new EvaluationDelegate(false, ConfigParser.this, "nextRandom", new Class[0]));
+            this.localIdentifiers.put(
+                "isModInstalled",
+                new EvaluationDelegate(false, Loader.class, "isModLoaded", new Class[] { String.class }));
+            this.localIdentifiers.put(
+                "oreExists",
+                new EvaluationDelegate(false, ConfigParser.class, "oreExists", new Class[] { String.class }));
+            this.localIdentifiers.put(
+                "blockExists",
+                new EvaluationDelegate(false, ConfigParser.this, "blockExists", new Class[] { String.class }));
+            this.localIdentifiers.put(
+                "biomeExists",
+                new EvaluationDelegate(false, ConfigParser.this, "biomeExists", new Class[] { String.class }));
+            this.localIdentifiers
+                .put("world.nextRandom", new EvaluationDelegate(false, ConfigParser.this, "nextRandom", new Class[0]));
         }
 
-        public ConfigExpressionEvaluator(Object defaultValue)
-        {
+        public ConfigExpressionEvaluator(Object defaultValue) {
             this();
             this.localIdentifiers.put("_default_", defaultValue);
         }
 
-        protected Object getIdentifierValue(String identifier)
-        {
+        protected Object getIdentifierValue(String identifier) {
             String lkey = identifier.toLowerCase();
             ConfigOption option = target.getConfigOption(identifier);
 
-            if (option != null)
-            {
+            if (option != null) {
                 return option.getValue();
-            }
-            else
-            {
+            } else {
                 Object property = target.getWorldProperty(identifier);
 
-                if (property != null)
-                {
+                if (property != null) {
                     return property;
-                }
-                else
-                {
+                } else {
                     Object value = this.localIdentifiers.get(identifier);
-                    return value != null ? value : (lkey.startsWith("age.") ? Integer.valueOf(0) : super.getIdentifierValue(identifier));
+                    return value != null ? value
+                        : (lkey.startsWith("age.") ? Integer.valueOf(0) : super.getIdentifierValue(identifier));
                 }
             }
         }
     }
 
-    private static class StdDistFactory implements IDistributionFactory
-    {
+    private static class StdDistFactory implements IDistributionFactory {
+
         protected Constructor<? extends IOreDistribution> _ctor;
         protected boolean _canGen;
 
-        public StdDistFactory(Class<? extends IOreDistribution> clazz, boolean canGenerate)
-        {
-            try
-            {
-                this._ctor = clazz.getConstructor(new Class[] {Integer.TYPE, Boolean.TYPE});
-            }
-            catch (NoSuchMethodException var4)
-            {
+        public StdDistFactory(Class<? extends IOreDistribution> clazz, boolean canGenerate) {
+            try {
+                this._ctor = clazz.getConstructor(new Class[] { Integer.TYPE, Boolean.TYPE });
+            } catch (NoSuchMethodException var4) {
                 throw new IllegalArgumentException(var4);
             }
 
             this._canGen = canGenerate;
         }
 
-        public IOreDistribution createDistribution(int distributionID)
-        {
-            try
-            {
-                return this._ctor.newInstance(new Object[] {Integer.valueOf(distributionID), Boolean.valueOf(this._canGen)});
-            }
-            catch (InvocationTargetException var3)
-            {
+        public IOreDistribution createDistribution(int distributionID) {
+            try {
+                return this._ctor
+                    .newInstance(new Object[] { Integer.valueOf(distributionID), Boolean.valueOf(this._canGen) });
+            } catch (InvocationTargetException var3) {
                 throw new IllegalArgumentException(var3);
-            }
-            catch (IllegalAccessException var4)
-            {
+            } catch (IllegalAccessException var4) {
                 throw new IllegalArgumentException(var4);
-            }
-            catch (InstantiationException var5)
-            {
+            } catch (InstantiationException var5) {
                 throw new IllegalArgumentException(var5);
             }
         }

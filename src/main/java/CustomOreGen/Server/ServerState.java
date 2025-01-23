@@ -1,17 +1,5 @@
 package CustomOreGen.Server;
 
-import CustomOreGen.CustomOreGenBase;
-import CustomOreGen.GeometryData;
-import CustomOreGen.GeometryRequestData;
-import CustomOreGen.Server.GuiCustomOreGenSettings.GuiOpenMenuButton;
-import CustomOreGen.Util.CogOreGenEvent;
-import CustomOreGen.Util.GeometryStream;
-import CustomOreGen.Util.SimpleProfiler;
-import cpw.mods.fml.common.Loader;
-import cpw.mods.fml.relauncher.ReflectionHelper;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
-import exterminatorJeff.undergroundBiomes.api.UBAPIHook;
 import java.awt.Frame;
 import java.io.File;
 import java.util.Collection;
@@ -20,6 +8,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Random;
+
 import net.minecraft.block.BlockSand;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiCreateWorld;
@@ -36,29 +25,36 @@ import net.minecraft.world.storage.SaveFormatOld;
 import net.minecraft.world.storage.WorldInfo;
 import net.minecraftforge.common.MinecraftForge;
 
-public class ServerState
-{
+import CustomOreGen.CustomOreGenBase;
+import CustomOreGen.GeometryData;
+import CustomOreGen.GeometryRequestData;
+import CustomOreGen.Server.GuiCustomOreGenSettings.GuiOpenMenuButton;
+import CustomOreGen.Util.CogOreGenEvent;
+import CustomOreGen.Util.GeometryStream;
+import CustomOreGen.Util.SimpleProfiler;
+import cpw.mods.fml.common.Loader;
+import cpw.mods.fml.relauncher.ReflectionHelper;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
+import exterminatorJeff.undergroundBiomes.api.UBAPIHook;
+
+public class ServerState {
+
     private static MinecraftServer _server = null;
-    private static Map<World,WorldConfig> _worldConfigs = new HashMap<World, WorldConfig>();
+    private static Map<World, WorldConfig> _worldConfigs = new HashMap<World, WorldConfig>();
     private static Object _optionsGuiButton = null;
     private static boolean forcingChunk;
 
-    public static WorldConfig getWorldConfig(World world)
-    {
+    public static WorldConfig getWorldConfig(World world) {
         WorldConfig cfg = _worldConfigs.get(world);
 
-        while (cfg == null)
-        {
-            try
-            {
+        while (cfg == null) {
+            try {
                 cfg = new WorldConfig(world);
                 validateOptions(cfg.getConfigOptions(), true);
                 validateDistributions(cfg.getOreDistributions(), true);
-            }
-            catch (Exception var4)
-            {
-                if (onConfigError(var4))
-                {
+            } catch (Exception var4) {
+                if (onConfigError(var4)) {
                     cfg = null;
                     continue;
                 }
@@ -72,20 +68,16 @@ public class ServerState
         return cfg;
     }
 
-    public static void clearWorldConfig(World world)
-    {
+    public static void clearWorldConfig(World world) {
         _worldConfigs.remove(world);
     }
 
-    public static boolean onConfigError(Throwable error)
-    {
+    public static boolean onConfigError(Throwable error) {
         CustomOreGenBase.log.error("Problem loading world config", error);
         Frame[] frames = Frame.getFrames();
 
-        if (frames != null && frames.length > 0)
-        {
-            switch ((new ConfigErrorDialog()).showDialog(frames[0], error))
-            {
+        if (frames != null && frames.length > 0) {
+            switch ((new ConfigErrorDialog()).showDialog(frames[0], error)) {
                 case 1:
                     return true;
 
@@ -97,45 +89,40 @@ public class ServerState
         return false;
     }
 
-    public static void validateDistributions(Collection<IOreDistribution> distributions, boolean cull) throws IllegalStateException
-    {
+    public static void validateDistributions(Collection<IOreDistribution> distributions, boolean cull)
+        throws IllegalStateException {
         Iterator<IOreDistribution> it = distributions.iterator();
 
-        while (it.hasNext())
-        {
+        while (it.hasNext()) {
             IOreDistribution dist = it.next();
 
-            if (!dist.validate() && cull)
-            {
+            if (!dist.validate() && cull) {
                 it.remove();
             }
         }
     }
 
-    public static void validateOptions(Collection<ConfigOption> options, boolean cull)
-    {
+    public static void validateOptions(Collection<ConfigOption> options, boolean cull) {
         Iterator<ConfigOption> it = options.iterator();
 
-        while (it.hasNext())
-        {
-            ConfigOption option = (ConfigOption)it.next();
+        while (it.hasNext()) {
+            ConfigOption option = (ConfigOption) it.next();
 
-            if (cull && option instanceof ConfigOption.DisplayGroup)
-            {
+            if (cull && option instanceof ConfigOption.DisplayGroup) {
                 it.remove();
             }
         }
     }
 
     // TODO: add force option; if true then we will generate even when there is no version
-    public static void populateDistributions(Collection<IOreDistribution> distributions, World world, int chunkX, int chunkZ)
-    {
+    public static void populateDistributions(Collection<IOreDistribution> distributions, World world, int chunkX,
+        int chunkZ) {
         SimpleProfiler.globalProfiler.startSection("Populate");
         BlockSand.fallInstantly = true;
         world.scheduledUpdatesAreImmediate = true;
 
         for (IOreDistribution dist : distributions) {
-        	dist.generate(world, chunkX, chunkZ);
+            dist.generate(world, chunkX, chunkZ);
             dist.populate(world, chunkX, chunkZ);
             dist.cull();
         }
@@ -143,40 +130,29 @@ public class ServerState
         world.scheduledUpdatesAreImmediate = false;
         BlockSand.fallInstantly = false;
         if (Loader.isModLoaded("UndergroundBiomes")) {
-        	UBAPIHook.ubAPIHook.ubOreTexturizer.redoOres(chunkX*16, chunkZ*16, world);
+            UBAPIHook.ubAPIHook.ubOreTexturizer.redoOres(chunkX * 16, chunkZ * 16, world);
         }
         SimpleProfiler.globalProfiler.endSection();
     }
 
-    public static GeometryData getDebuggingGeometryData(GeometryRequestData request)
-    {
-        if (_server == null)
-        {
+    public static GeometryData getDebuggingGeometryData(GeometryRequestData request) {
+        if (_server == null) {
             return null;
-        }
-        else if (request.world == null)
-        {
+        } else if (request.world == null) {
             return null;
-        }
-        else
-        {
+        } else {
             WorldConfig cfg = getWorldConfig(request.world);
 
-            if (!cfg.debuggingMode)
-            {
+            if (!cfg.debuggingMode) {
                 return null;
-            }
-            else
-            {
+            } else {
                 LinkedList<GeometryStream> streams = new LinkedList<GeometryStream>();
 
-                for (IOreDistribution dist : cfg.getOreDistributions())
-                {
+                for (IOreDistribution dist : cfg.getOreDistributions()) {
                     dist.generate(request.world, request.chunkX, request.chunkZ);
                     GeometryStream stream = dist.getDebuggingGeometry(request.world, request.chunkX, request.chunkZ);
 
-                    if (stream != null)
-                    {
+                    if (stream != null) {
                         streams.add(stream);
                     }
                     dist.cull();
@@ -188,91 +164,77 @@ public class ServerState
     }
 
     public static void onPopulateChunk(World world, int chunkX, int chunkZ, Random rand) {
-    	WorldConfig cfg = getWorldConfig(world);
-    	int range = (cfg.deferredPopulationRange + 15) / 16;
-    	for (int iX = chunkX - range; iX <= chunkX + range; ++iX)
-        {
-            for (int iZ = chunkZ - range; iZ <= chunkZ + range; ++iZ)
-            {
-            	if (allNeighborsPopulated(world, iX, iZ, range)) {
-            		//CustomOreGenBase.log.info("[" + iX + "," + iZ + "]: POPULATING");
-            		populateDistributions(cfg.getOreDistributions(), world, iX, iZ);
-            		MinecraftForge.ORE_GEN_BUS.post(new CogOreGenEvent(world, rand, iX*16, iZ*16));
-            	}
+        WorldConfig cfg = getWorldConfig(world);
+        int range = (cfg.deferredPopulationRange + 15) / 16;
+        for (int iX = chunkX - range; iX <= chunkX + range; ++iX) {
+            for (int iZ = chunkZ - range; iZ <= chunkZ + range; ++iZ) {
+                if (allNeighborsPopulated(world, iX, iZ, range)) {
+                    // CustomOreGenBase.log.info("[" + iX + "," + iZ + "]: POPULATING");
+                    populateDistributions(cfg.getOreDistributions(), world, iX, iZ);
+                    MinecraftForge.ORE_GEN_BUS.post(new CogOreGenEvent(world, rand, iX * 16, iZ * 16));
+                }
             }
         }
     }
 
     private static boolean allNeighborsPopulated(World world, int chunkX, int chunkZ, int range) {
-    	int area = 4 * range * (range + 1) + 1;
-    	int neighborCount = 0;
-        for (int iX = chunkX - range; iX <= chunkX + range; ++iX)
-        {
-            for (int iZ = chunkZ - range; iZ <= chunkZ + range; ++iZ)
-            {
-            	if (chunkHasBeenPopulated(world, iX, iZ))
-            	{
-            		//CustomOreGenBase.log.info("[" + iX + "," + iZ + "]: populated neighbor");
-            		neighborCount++;
-            	}
+        int area = 4 * range * (range + 1) + 1;
+        int neighborCount = 0;
+        for (int iX = chunkX - range; iX <= chunkX + range; ++iX) {
+            for (int iZ = chunkZ - range; iZ <= chunkZ + range; ++iZ) {
+                if (chunkHasBeenPopulated(world, iX, iZ)) {
+                    // CustomOreGenBase.log.info("[" + iX + "," + iZ + "]: populated neighbor");
+                    neighborCount++;
+                }
             }
         }
-		return neighborCount == area;
-	}
+        return neighborCount == area;
+    }
 
-	private static boolean chunkHasBeenPopulated(World world, int chunkX, int chunkZ) {
-		// NOTE: We assume the chunk has been populated if it is only on disk,
-		//       because if we load it to check, it will be populated automatically.
-		return chunkIsLoaded(world, chunkX, chunkZ) ?
-				world.getChunkFromChunkCoords(chunkX, chunkZ).isTerrainPopulated :
-					chunkIsSaved(world, chunkX, chunkZ);
-	}
+    private static boolean chunkHasBeenPopulated(World world, int chunkX, int chunkZ) {
+        // NOTE: We assume the chunk has been populated if it is only on disk,
+        // because if we load it to check, it will be populated automatically.
+        return chunkIsLoaded(world, chunkX, chunkZ) ? world.getChunkFromChunkCoords(chunkX, chunkZ).isTerrainPopulated
+            : chunkIsSaved(world, chunkX, chunkZ);
+    }
 
-	private static boolean chunkIsLoaded(World world, int chunkX, int chunkZ) {
-		return world.getChunkProvider().chunkExists(chunkX, chunkZ);
-	}
+    private static boolean chunkIsLoaded(World world, int chunkX, int chunkZ) {
+        return world.getChunkProvider()
+            .chunkExists(chunkX, chunkZ);
+    }
 
-	private static boolean chunkIsSaved(World world, int chunkX, int chunkZ) {
-		if (world.getChunkProvider() instanceof ChunkProviderServer) {
-			IChunkLoader loader = ((ChunkProviderServer)world.getChunkProvider()).currentChunkLoader;
-			if (loader instanceof AnvilChunkLoader) {
-				//if (((AnvilChunkLoader) loader).chunkExists(world, chunkX, chunkZ))
-				//	CustomOreGenBase.log.info("[" + chunkX + "," + chunkZ + "]: saved on disk");
-				return ((AnvilChunkLoader) loader).chunkExists(world, chunkX, chunkZ);
-			}
-		}
-		return false;
-	}
-
-	public static boolean checkIfServerChanged(MinecraftServer currentServer, WorldInfo worldInfo)
-    {
-        if (_server == currentServer)
-        {
-            return false;
+    private static boolean chunkIsSaved(World world, int chunkX, int chunkZ) {
+        if (world.getChunkProvider() instanceof ChunkProviderServer) {
+            IChunkLoader loader = ((ChunkProviderServer) world.getChunkProvider()).currentChunkLoader;
+            if (loader instanceof AnvilChunkLoader) {
+                // if (((AnvilChunkLoader) loader).chunkExists(world, chunkX, chunkZ))
+                // CustomOreGenBase.log.info("[" + chunkX + "," + chunkZ + "]: saved on disk");
+                return ((AnvilChunkLoader) loader).chunkExists(world, chunkX, chunkZ);
+            }
         }
-        else
-        {
-            if (currentServer != null && worldInfo == null)
-            {
-                if (currentServer.worldServers == null)
-                {
+        return false;
+    }
+
+    public static boolean checkIfServerChanged(MinecraftServer currentServer, WorldInfo worldInfo) {
+        if (_server == currentServer) {
+            return false;
+        } else {
+            if (currentServer != null && worldInfo == null) {
+                if (currentServer.worldServers == null) {
                     return false;
                 }
 
                 for (WorldServer world : currentServer.worldServers) {
-                    if (world != null)
-                    {
+                    if (world != null) {
                         worldInfo = world.getWorldInfo();
                     }
 
-                    if (worldInfo != null)
-                    {
+                    if (worldInfo != null) {
                         break;
                     }
                 }
 
-                if (worldInfo == null)
-                {
+                if (worldInfo == null) {
                     return false;
                 }
             }
@@ -282,8 +244,7 @@ public class ServerState
         }
     }
 
-    public static void onServerChanged(MinecraftServer server, WorldInfo worldInfo)
-    {
+    public static void onServerChanged(MinecraftServer server, WorldInfo worldInfo) {
         _worldConfigs.clear();
         WorldConfig.loadedOptionOverrides[1] = WorldConfig.loadedOptionOverrides[2] = null;
 
@@ -292,26 +253,20 @@ public class ServerState
         File f = null;
         ISaveFormat format = _server.getActiveAnvilConverter();
 
-        if (format != null && format instanceof SaveFormatOld)
-        {
-            f = ((SaveFormatOld)format).savesDirectory;
+        if (format != null && format instanceof SaveFormatOld) {
+            f = ((SaveFormatOld) format).savesDirectory;
         }
 
         f = new File(f, _server.getFolderName());
         WorldConfig config = null;
 
-        while (config == null)
-        {
-            try
-            {
+        while (config == null) {
+            try {
                 config = new WorldConfig(worldInfo, f);
                 validateOptions(config.getConfigOptions(), false);
                 validateDistributions(config.getOreDistributions(), false);
-            }
-            catch (Exception var7)
-            {
-                if (!onConfigError(var7))
-                {
+            } catch (Exception var7) {
+                if (!onConfigError(var7)) {
                     break;
                 }
 
@@ -321,55 +276,49 @@ public class ServerState
     }
 
     @SideOnly(Side.CLIENT)
-    public static void onWorldCreationMenuTick(GuiCreateWorld gui)
-    {
-        if (gui == null)
-        {
+    public static void onWorldCreationMenuTick(GuiCreateWorld gui) {
+        if (gui == null) {
             _optionsGuiButton = null;
-        }
-        else
-        {
-            if (_optionsGuiButton == null)
-            {
+        } else {
+            if (_optionsGuiButton == null) {
                 WorldConfig.loadedOptionOverrides[0] = null;
                 GuiCustomOreGenSettings button = new GuiCustomOreGenSettings(gui);
                 _optionsGuiButton = new GuiOpenMenuButton(gui, 99, 0, 0, 150, 20, "Custom Ore Generation...", button);
             }
 
-            GuiOpenMenuButton button1 = (GuiOpenMenuButton)_optionsGuiButton;
+            GuiOpenMenuButton button1 = (GuiOpenMenuButton) _optionsGuiButton;
             @SuppressWarnings("unchecked")
-			Collection<GuiButton> controlList = (Collection<GuiButton>)ReflectionHelper.getPrivateValue(GuiScreen.class, gui, 4);
+            Collection<GuiButton> controlList = (Collection<GuiButton>) ReflectionHelper
+                .getPrivateValue(GuiScreen.class, gui, 4);
 
-            if (!controlList.contains(button1))
-            {
+            if (!controlList.contains(button1)) {
                 button1.xPosition = (gui.width - button1.getWidth()) / 2;
                 button1.yPosition = 165;
                 controlList.add(button1);
             }
 
-            button1.visible = !((Boolean)ReflectionHelper.getPrivateValue(GuiCreateWorld.class, gui, 11)).booleanValue();
+            button1.visible = !((Boolean) ReflectionHelper.getPrivateValue(GuiCreateWorld.class, gui, 11))
+                .booleanValue();
         }
     }
 
-	public static void chunkForced(World world, ChunkCoordIntPair location) {
-		if (forcingChunk) { // prevent infinite recursion when there are multiple chunk loaders
-			return;
-		}
-		forcingChunk = true;
+    public static void chunkForced(World world, ChunkCoordIntPair location) {
+        if (forcingChunk) { // prevent infinite recursion when there are multiple chunk loaders
+            return;
+        }
+        forcingChunk = true;
 
-		WorldConfig cfg = getWorldConfig(world);
-		int radius = (cfg.deferredPopulationRange + 15) / 16;
+        WorldConfig cfg = getWorldConfig(world);
+        int radius = (cfg.deferredPopulationRange + 15) / 16;
 
-        for (int cX = location.chunkXPos - radius; cX <= location.chunkXPos + radius; ++cX)
-        {
-            for (int cZ = location.chunkZPos - radius; cZ <= location.chunkZPos + radius; ++cZ)
-            {
-            	if (cX != location.chunkXPos && cZ != location.chunkZPos) {
-            		world.getChunkFromChunkCoords(cX, cZ);
-            	}
+        for (int cX = location.chunkXPos - radius; cX <= location.chunkXPos + radius; ++cX) {
+            for (int cZ = location.chunkZPos - radius; cZ <= location.chunkZPos + radius; ++cZ) {
+                if (cX != location.chunkXPos && cZ != location.chunkZPos) {
+                    world.getChunkFromChunkCoords(cX, cZ);
+                }
             }
         }
 
         forcingChunk = false;
-	}
+    }
 }

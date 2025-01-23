@@ -1,6 +1,5 @@
 package CustomOreGen.Server;
 
-import CustomOreGen.CustomOreGenBase;
 import java.awt.Button;
 import java.awt.Color;
 import java.awt.Dialog;
@@ -14,12 +13,16 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
+
 import javax.swing.BoxLayout;
+
 import org.lwjgl.LWJGLUtil;
 import org.lwjgl.opengl.Display;
 
-public class ConfigErrorDialog implements WindowListener, ActionListener
-{
+import CustomOreGen.CustomOreGenBase;
+
+public class ConfigErrorDialog implements WindowListener, ActionListener {
+
     private boolean _waiting = false;
     private Dialog _dialog = null;
     private Button _abort = null;
@@ -27,14 +30,10 @@ public class ConfigErrorDialog implements WindowListener, ActionListener
     private Button _ignore = null;
     private int _returnVal = 0;
 
-    public int showDialog(Frame parentWindow, Throwable error)
-    {
-        if (this._dialog != null)
-        {
+    public int showDialog(Frame parentWindow, Throwable error) {
+        if (this._dialog != null) {
             throw new IllegalStateException("CustomOreGen Config Error Dialog is already open!");
-        }
-        else
-        {
+        } else {
             this._dialog = new Dialog(parentWindow, "CustomOreGen Config Error", false);
             this._dialog.addWindowListener(this);
             TextArea text = new TextArea(this.getMessage(error), 30, 120, 1);
@@ -67,11 +66,9 @@ public class ConfigErrorDialog implements WindowListener, ActionListener
             this._dialog.setVisible(true);
             boolean usingLWJGL = CustomOreGenBase.isClassLoaded("org.lwjgl.opengl.Display");
 
-            while (this._waiting)
-            {
-            	/* On the Mac, LWJGL fails if there is no OpenGL context */
-                if (usingLWJGL && Display.isCreated() && LWJGLUtil.getPlatform() != LWJGLUtil.PLATFORM_MACOSX)
-                {
+            while (this._waiting) {
+                /* On the Mac, LWJGL fails if there is no OpenGL context */
+                if (usingLWJGL && Display.isCreated() && LWJGLUtil.getPlatform() != LWJGLUtil.PLATFORM_MACOSX) {
                     Display.processMessages();
                 }
             }
@@ -86,8 +83,7 @@ public class ConfigErrorDialog implements WindowListener, ActionListener
         }
     }
 
-    protected String getMessage(Throwable error)
-    {
+    protected String getMessage(Throwable error) {
         StringBuilder msg = new StringBuilder();
         msg.append("CustomOreGen has detected an error while trying to load its config files.\n");
         msg.append("At this time you may: \n");
@@ -100,8 +96,7 @@ public class ConfigErrorDialog implements WindowListener, ActionListener
         msg.append(error.toString());
         msg.append("\n\n");
 
-        for (Throwable th = error.getCause(); th != null; th = th.getCause())
-        {
+        for (Throwable th = error.getCause(); th != null; th = th.getCause()) {
             msg.append("-------- Caused By --------\n\n");
             msg.append(th.toString());
             msg.append("\n\n");
@@ -110,27 +105,20 @@ public class ConfigErrorDialog implements WindowListener, ActionListener
         return msg.toString();
     }
 
-    public void actionPerformed(ActionEvent e)
-    {
-        if (e.getSource() == this._abort)
-        {
+    public void actionPerformed(ActionEvent e) {
+        if (e.getSource() == this._abort) {
             this._returnVal = 0;
             this._waiting = false;
-        }
-        else if (e.getSource() == this._retry)
-        {
+        } else if (e.getSource() == this._retry) {
             this._returnVal = 1;
             this._waiting = false;
-        }
-        else if (e.getSource() == this._ignore)
-        {
+        } else if (e.getSource() == this._ignore) {
             this._returnVal = 2;
             this._waiting = false;
         }
     }
 
-    public void windowClosing(WindowEvent e)
-    {
+    public void windowClosing(WindowEvent e) {
         this._waiting = false;
     }
 
